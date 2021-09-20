@@ -1,0 +1,4 @@
+[submodule "parsec-operations"]
+	path = parsec-operations
+	url = https://github.com/parallaxsecond/parsec-operations.git
+	branch = main
