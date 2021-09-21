@@ -29,7 +29,7 @@ public class UnixSocket implements IpcHandler {
 
   @Override
   public ByteChannel connect() {
-    return new UnixSocketChannel(path);
+    return new UnixSocketChannel(path, timeout);
   }
 
   public static UnixSocket withDefaults() {

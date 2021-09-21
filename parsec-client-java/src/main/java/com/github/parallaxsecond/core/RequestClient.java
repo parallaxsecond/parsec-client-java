@@ -42,9 +42,10 @@ public class RequestClient {
   /** Send a request and get a response. */
   public Response processRequest(Request request) throws IOException {
     // Try to connect once, wait for a timeout until trying again.
-    ByteChannel stream = ipcHandler.connect();
-    request.writeToStream(stream);
-    return Response.readFromStream(stream, maxBodySize);
+    try (ByteChannel stream = ipcHandler.connect()) {
+      request.writeToStream(stream);
+      return Response.readFromStream(stream, maxBodySize);
+    }
   }
 
   public static RequestClient withDefaults() {
