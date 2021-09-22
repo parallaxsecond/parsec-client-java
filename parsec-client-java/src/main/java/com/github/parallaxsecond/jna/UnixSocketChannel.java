@@ -1,7 +1,6 @@
-package com.github.parallaxsecond.core.ipc_handler;
+package com.github.parallaxsecond.jna;
 
 import com.github.parallaxsecond.exceptions.InvalidSocketAddressException;
-import jnr.posix.POSIXFactory;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,13 +17,13 @@ public class UnixSocketChannel implements ByteChannel {
   private final int socket;
 
   public UnixSocketChannel(@NonNull Path path, Duration timeout) {
-    if (!Files.exists(path) || !POSIXFactory.getNativePOSIX().stat(path.toString()).isSocket()) {
+    if (!Files.exists(path) || !FileStat.isSocket(path.toString())) {
       throw new InvalidSocketAddressException(path);
     }
-    this.socket = UnixSocketJna.unixSocket();
-    UnixSocketJna.connect(this.socket, path.toString());
-    UnixSocketJna.setReceiveTimeout(this.socket, timeout);
-    UnixSocketJna.setSendTimeout(this.socket, timeout);
+    this.socket = UnixSocket.unixSocket();
+    UnixSocket.connect(this.socket, path.toString());
+    UnixSocket.setReceiveTimeout(this.socket, timeout);
+    UnixSocket.setSendTimeout(this.socket, timeout);
     this.open = true;
   }
 
@@ -34,7 +33,7 @@ public class UnixSocketChannel implements ByteChannel {
     int read = 0;
     int pos = dst.position();
     while (read < toRead) {
-      read += (int) UnixSocketJna.readSocket(this.socket, dst, toRead - read);
+      read += (int) UnixSocket.readSocket(this.socket, dst, toRead - read);
       log.debug("expected: {}, read: {}", toRead, read);
       dst.position(pos + read);
     }
@@ -47,7 +46,7 @@ public class UnixSocketChannel implements ByteChannel {
     int written = 0;
     int pos = src.position();
     while (written < toWrite) {
-      written += (int) UnixSocketJna.writeSocket(socket, src, toWrite - written);
+      written += (int) UnixSocket.writeSocket(socket, src, toWrite - written);
       src.position(pos + written);
     }
     return written;
@@ -55,13 +54,12 @@ public class UnixSocketChannel implements ByteChannel {
 
   @Override
   public boolean isOpen() {
-
     return open;
   }
 
   @Override
   public void close() {
-    UnixSocketJna.closeSocket(this.socket);
+    UnixSocket.closeSocket(this.socket);
     open = false;
   }
 }

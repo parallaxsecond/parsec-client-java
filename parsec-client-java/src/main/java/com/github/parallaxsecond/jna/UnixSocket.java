@@ -1,6 +1,5 @@
-package com.github.parallaxsecond.core.ipc_handler;
+package com.github.parallaxsecond.jna;
 
-import com.github.parallaxsecond.Platform;
 import com.github.parallaxsecond.exceptions.IpcException;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
@@ -8,16 +7,16 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 
-interface UnixSocketJna extends Library {
-  Logger log = LoggerFactory.getLogger(UnixSocketJna.class);
+import static com.github.parallaxsecond.jna.Error.throwError;
+import static com.github.parallaxsecond.jna.Error.warnError;
+
+interface UnixSocket extends Library {
   // these are the same for mac and linux
   int AF_UNIX = 1;
   int SOCK_STREAM = 1;
@@ -25,22 +24,7 @@ interface UnixSocketJna extends Library {
   int SO_RCVTIMEO = Platform.value().osx(0x1006).linux(20).get();
   int SO_SNDTIMEO = Platform.value().osx(0x1005).linux(21).get();
 
-  UnixSocketJna SOCKET_IMPL = Native.load("c", UnixSocketJna.class);
-
-  static void throwError(long ret) {
-    if (ret < 0) {
-      int errno = Native.getLastError();
-      String error = SOCKET_IMPL.strerror(errno);
-      throw new IpcException(error);
-    }
-  }
-
-  static void warnError(long ret) {
-    if (ret < 0) {
-      int errno = Native.getLastError();
-      log.warn(SOCKET_IMPL.strerror(errno));
-    }
-  }
+  UnixSocket SOCKET_IMPL = Native.load("c", UnixSocket.class);
 
   static int setTimeout(int socket, Duration timeout, int type) {
     Timeval tv = new Timeval(timeout);
@@ -64,17 +48,28 @@ interface UnixSocketJna extends Library {
     return socket;
   }
 
-  static void connect(int socket, @NonNull String path) {
+  interface SocketCall {
+    int call(int socket, Pointer p, int size);
+  }
+
+  static void socketCall(SocketCall method, int socket, @NonNull String path) {
     if (path.getBytes(StandardCharsets.UTF_8).length >= 92) {
       throw new IpcException(path + " exceeds 92 characters");
     }
-
     SockAddrUn addr = new SockAddrUn();
     byte[] pathArray = Native.toByteArray(path, StandardCharsets.UTF_8);
     System.arraycopy(pathArray, 0, addr.path, 0, pathArray.length);
     addr.write();
-    int ret = SOCKET_IMPL.connect(socket, addr.getPointer(), addr.size());
+    int ret = method.call(socket, addr.getPointer(), addr.size());
     throwError(ret);
+  }
+
+  static void bind(int socket, @NonNull String path) {
+    socketCall(SOCKET_IMPL::bind, socket, path);
+  }
+
+  static void connect(int socket, @NonNull String path) {
+    socketCall(SOCKET_IMPL::connect, socket, path);
   }
 
   static void closeSocket(int socket) {
@@ -96,9 +91,9 @@ interface UnixSocketJna extends Library {
 
   int socket(int domain, int type, int protocol);
 
-  String strerror(int errno);
-
   int connect(int socket, Pointer addr, int size);
+
+  int bind(int socket, Pointer addr, int size);
 
   int close(int socket);
 
@@ -106,7 +101,7 @@ interface UnixSocketJna extends Library {
 
   long write(int socket, ByteBuffer pointer, long size);
 
-  int setsockopt(int socket, int level, int option_name, Pointer optionValue, long option_len);
+  int setsockopt(int socket, int level, int optionName, Pointer optionValue, long optionLen);
 
   @EqualsAndHashCode(callSuper = false)
   class SockAddrUn extends Structure {
@@ -122,8 +117,8 @@ interface UnixSocketJna extends Library {
 
   class Timeval extends Structure {
     protected static final List<String> FIELDS = createFieldsOrder("tvSec", "tvUSec");
-    public long tvSec = 0;
-    public long tvUSec = 0;
+    public long tvSec;
+    public long tvUSec;
 
     public Timeval(Duration duration) {
       tvSec = duration.getSeconds();
@@ -135,5 +130,4 @@ interface UnixSocketJna extends Library {
       return FIELDS;
     }
   }
-  ;
 }

@@ -1,13 +1,13 @@
 package com.github.parallaxsecond;
 
 import com.github.parallaxsecond.exceptions.SpiffeException;
+import com.github.parallaxsecond.jna.Uid;
 import com.github.parallaxsecond.requests.AuthType;
 import com.github.parallaxsecond.requests.request.RequestAuth;
 import io.spiffe.exception.JwtSvidException;
 import io.spiffe.exception.SocketEndpointAddressException;
 import io.spiffe.workloadapi.DefaultWorkloadApiClient;
 import io.spiffe.workloadapi.WorkloadApiClient;
-import jnr.posix.POSIXFactory;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +60,7 @@ public interface Authentication {
 
     @Override
     public RequestAuth createRequestAuth() {
-      int currentUId = POSIXFactory.getPOSIX().getuid();
+      int currentUId = Uid.getUid();
       return new RequestAuth(
           ByteBuffer.allocate(4).order(LITTLE_ENDIAN).putInt(currentUId).array());
     }
