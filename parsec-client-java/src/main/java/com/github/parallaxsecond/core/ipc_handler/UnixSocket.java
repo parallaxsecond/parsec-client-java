@@ -1,5 +1,6 @@
 package com.github.parallaxsecond.core.ipc_handler;
 
+import com.github.parallaxsecond.jna.UnixSocketChannel;
 import lombok.Setter;
 
 import java.nio.channels.ByteChannel;
