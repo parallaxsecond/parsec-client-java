@@ -13,8 +13,8 @@ import java.time.Duration;
 @Slf4j
 public class UnixSocketChannel implements ByteChannel {
 
-  private volatile boolean open;
   private final int socket;
+  private volatile boolean open;
 
   public UnixSocketChannel(@NonNull Path path, Duration timeout) {
     if (!Files.exists(path) || !FileStat.isSocket(path.toString())) {

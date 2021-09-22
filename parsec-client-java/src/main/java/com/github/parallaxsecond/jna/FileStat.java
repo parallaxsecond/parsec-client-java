@@ -38,8 +38,6 @@ public interface FileStat extends Library {
           .osx(buf -> ((int) ((ByteBuffer) buf.position(ST_MODE_POSITION)).getShort()))
           .get();
 
-  int lstat(String path, ByteBuffer buffer);
-
   @SneakyThrows
   static boolean isSocket(String filename) {
     ByteBuffer buf = ByteBuffer.allocate(STAT_STRUCT_LEN).order(ByteOrder.nativeOrder());
@@ -47,4 +45,6 @@ public interface FileStat extends Library {
     int stMode = ST_MODE_EXTRACTOR.apply(buf);
     return (stMode & 0x0000F000) == 0xC000;
   }
+
+  int lstat(String path, ByteBuffer buffer);
 }

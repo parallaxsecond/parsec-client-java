@@ -12,6 +12,8 @@ import java.nio.channels.WritableByteChannel;
 
 @RequiredArgsConstructor
 public class RequestAuth {
+  @Getter private final Secret.SecretBytes buffer;
+
   public RequestAuth() {
     this(new byte[0]);
   }
@@ -19,8 +21,6 @@ public class RequestAuth {
   public RequestAuth(byte[] bytes) {
     this.buffer = new Secret.SecretBytes(bytes);
   }
-
-  @Getter private final Secret.SecretBytes buffer;
 
   public static RequestAuth readFromStream(ReadableByteChannel channel, short authLen)
       throws IOException {

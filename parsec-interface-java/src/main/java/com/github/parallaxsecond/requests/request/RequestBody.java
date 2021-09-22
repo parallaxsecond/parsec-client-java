@@ -16,16 +16,16 @@ public class RequestBody {
     this(ByteBuffer.wrap(buf));
   }
 
-  public void writeToStream(WritableByteChannel channel) throws IOException {
-    channel.write(buffer);
-  }
-
   public static RequestBody readFromStream(ReadableByteChannel channel, int len)
       throws IOException {
     ByteBuffer buf = ByteBuffer.allocate(len).order(ByteOrder.LITTLE_ENDIAN);
     channel.read(buf);
     buf.flip();
     return new RequestBody(buf);
+  }
+
+  public void writeToStream(WritableByteChannel channel) throws IOException {
+    channel.write(buffer);
   }
 
   public int length() {

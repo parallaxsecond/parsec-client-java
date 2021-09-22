@@ -39,6 +39,13 @@ public class RequestClient {
                     .orElse(MessageFormat.format("unix:{0}", UnixSocket.DEFAULT_SOCKET_PATH)))));
   }
 
+  public static RequestClient withDefaults() {
+    return RequestClient.builder()
+        .maxBodySize(DEFAULT_MAX_BODY_SIZE)
+        .ipcHandler(UnixSocket.withDefaults())
+        .build();
+  }
+
   /** Send a request and get a response. */
   public Response processRequest(Request request) throws IOException {
     // Try to connect once, wait for a timeout until trying again.
@@ -46,13 +53,6 @@ public class RequestClient {
       request.writeToStream(stream);
       return Response.readFromStream(stream, maxBodySize);
     }
-  }
-
-  public static RequestClient withDefaults() {
-    return RequestClient.builder()
-        .maxBodySize(DEFAULT_MAX_BODY_SIZE)
-        .ipcHandler(UnixSocket.withDefaults())
-        .build();
   }
 
   void setMaxBodySize(long maxBodySize) {
