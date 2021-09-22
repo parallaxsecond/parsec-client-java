@@ -12,12 +12,10 @@ import java.time.Duration;
 public class UnixSocket implements IpcHandler {
   /** Default socket path used by the service. */
   public static final String DEFAULT_SOCKET_PATH = "/run/parsec/parsec.sock";
-
-  /** Timeout for reads and writes on the streams */
-  @Setter private Duration timeout = DEFAULT_TIMEOUT;
-
   /** Path at which the socket can be found */
   private final Path path;
+  /** Timeout for reads and writes on the streams */
+  @Setter private Duration timeout = DEFAULT_TIMEOUT;
 
   public UnixSocket(String path) {
     this(path, DEFAULT_TIMEOUT);
@@ -28,12 +26,12 @@ public class UnixSocket implements IpcHandler {
     this.timeout = timeout;
   }
 
+  public static UnixSocket withDefaults() {
+    return new UnixSocket(DEFAULT_SOCKET_PATH, DEFAULT_TIMEOUT);
+  }
+
   @Override
   public ByteChannel connect() {
     return new UnixSocketChannel(path, timeout);
-  }
-
-  public static UnixSocket withDefaults() {
-    return new UnixSocket(DEFAULT_SOCKET_PATH, DEFAULT_TIMEOUT);
   }
 }

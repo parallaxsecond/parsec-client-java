@@ -58,37 +58,6 @@ public class WireHeader_1_0 {
   /** Reserved byte. Currently unused. Must be present. Must be zero. */
   private final byte reserved2;
 
-  /**
-   * Serialise the request header and write the corresponding bytes to the given stream.
-   *
-   * <p># Errors - if marshalling the header fails, `ResponseStatus::InvalidEncoding` is returned. -
-   * if writing the header bytes fails, `ResponseStatus::ConnectionError` is returned.
-   */
-  public void writeToStream(WritableByteChannel channel) throws IOException {
-    ByteBuffer buf =
-        ByteBuffer.allocate(REQUEST_HDR_SIZE + 6)
-            .order(ByteOrder.LITTLE_ENDIAN)
-            .putInt(MAGIC_NUMBER) // 4
-            .putShort(REQUEST_HDR_SIZE) // 6
-            .put(WIRE_PROTOCOL_VERSION_MAJ) // 7
-            .put(WIRE_PROTOCOL_VERSION_MIN) // 8
-            .putShort(flags) // 10
-            .put(provider) // 11
-            .putLong(session) // 19
-            .put(contentType) // 20
-            .put(acceptType) // 21
-            .put(authType) // 22
-            .putInt(bodyLen) // 26
-            .putShort(authLen) // 28
-            .putInt(opcode) // 32
-            .putShort(status) // 34
-            .put(reserved1) // 35
-            .put(reserved2); // 36
-    buf.flip();
-
-    channel.write(buf);
-  }
-
   public static WireHeader_1_0 readFromStream(ReadableByteChannel channel) throws IOException {
     ByteBuffer buf = ByteBuffer.allocate(REQUEST_HDR_SIZE + 6).order(ByteOrder.LITTLE_ENDIAN);
 
@@ -143,5 +112,36 @@ public class WireHeader_1_0 {
               wireHeader.reserved1, wireHeader.reserved2));
     }
     return wireHeader;
+  }
+
+  /**
+   * Serialise the request header and write the corresponding bytes to the given stream.
+   *
+   * <p># Errors - if marshalling the header fails, `ResponseStatus::InvalidEncoding` is returned. -
+   * if writing the header bytes fails, `ResponseStatus::ConnectionError` is returned.
+   */
+  public void writeToStream(WritableByteChannel channel) throws IOException {
+    ByteBuffer buf =
+        ByteBuffer.allocate(REQUEST_HDR_SIZE + 6)
+            .order(ByteOrder.LITTLE_ENDIAN)
+            .putInt(MAGIC_NUMBER) // 4
+            .putShort(REQUEST_HDR_SIZE) // 6
+            .put(WIRE_PROTOCOL_VERSION_MAJ) // 7
+            .put(WIRE_PROTOCOL_VERSION_MIN) // 8
+            .putShort(flags) // 10
+            .put(provider) // 11
+            .putLong(session) // 19
+            .put(contentType) // 20
+            .put(acceptType) // 21
+            .put(authType) // 22
+            .putInt(bodyLen) // 26
+            .putShort(authLen) // 28
+            .putInt(opcode) // 32
+            .putShort(status) // 34
+            .put(reserved1) // 35
+            .put(reserved2); // 36
+    buf.flip();
+
+    channel.write(buf);
   }
 }

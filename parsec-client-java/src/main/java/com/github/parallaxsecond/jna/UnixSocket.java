@@ -48,10 +48,6 @@ interface UnixSocket extends Library {
     return socket;
   }
 
-  interface SocketCall {
-    int call(int socket, Pointer p, int size);
-  }
-
   static void socketCall(SocketCall method, int socket, @NonNull String path) {
     if (path.getBytes(StandardCharsets.UTF_8).length >= 92) {
       throw new IpcException(path + " exceeds 92 characters");
@@ -102,6 +98,10 @@ interface UnixSocket extends Library {
   long write(int socket, ByteBuffer pointer, long size);
 
   int setsockopt(int socket, int level, int optionName, Pointer optionValue, long optionLen);
+
+  interface SocketCall {
+    int call(int socket, Pointer p, int size);
+  }
 
   @EqualsAndHashCode(callSuper = false)
   class SockAddrUn extends Structure {

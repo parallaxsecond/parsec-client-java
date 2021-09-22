@@ -23,6 +23,9 @@ public interface NativeResult {
   class ListProvidersResult implements NativeResult {
 
     /** Structure holding the basic information that defines the providers in */
+    Opcode opcode = Opcode.LIST_PROVIDERS;
+    List<ProviderInfo> providers;
+
     /** the service for client discovery. */
     @Value
     @Builder
@@ -42,9 +45,6 @@ public interface NativeResult {
       /** Provider ID to use on the wire protocol to communicate with this provider. */
       ProviderId id;
     }
-
-    Opcode opcode = Opcode.LIST_PROVIDERS;
-    List<ProviderInfo> providers;
   }
   /** ListOpcodes result */
   @Value
@@ -58,6 +58,9 @@ public interface NativeResult {
   @Value
   @Builder
   class ListAuthenticatorsResult implements NativeResult {
+    Opcode opcode = Opcode.LIST_AUTHENTICATORS;
+    List<AuthenticatorInfo> authenticators;
+
     /**
      * Structure holding the basic information that defines the authenticators in the service for
      * client discovery.
@@ -76,14 +79,15 @@ public interface NativeResult {
       /** Authenticator ID to use on the wire protocol to communicate with this authenticator. */
       AuthType id;
     }
-
-    Opcode opcode = Opcode.LIST_AUTHENTICATORS;
-    List<AuthenticatorInfo> authenticators;
   }
   /** ListKeys result */
   @Value
   @Builder
   class ListKeysResult implements NativeResult {
+    Opcode opcode = Opcode.LIST_KEYS;
+    /** A list of `KeyInfo` structures. */
+    List<KeyInfo> keys;
+
     /**
      * Structure holding the basic information for a key in the application for client discovery.
      */
@@ -98,10 +102,6 @@ public interface NativeResult {
       // FIXME
       PsaKeyAttributes attributes;
     }
-
-    Opcode opcode = Opcode.LIST_KEYS;
-    /** A list of `KeyInfo` structures. */
-    List<KeyInfo> keys;
   }
   /** ListClients result */
   @Value

@@ -31,25 +31,6 @@ public class Request {
   private final RequestAuth auth;
 
   /**
-   * Serialise request and write it to given stream.
-   *
-   * <p>Request header is first converted to its raw format before serialization. # Errors - if an
-   * IO operation fails while writing any of the subfields of the request,
-   * `ResponseStatus::ConnectionError` is returned. - if encoding any of the fields in the header
-   * fails, `ResponseStatus::InvalidEncoding` is returned.
-   */
-  public void writeToStream(WritableByteChannel channel) throws IOException {
-    header
-        .toRaw()
-        .bodyLen(body.length())
-        .authLen((short) auth.getBuffer().length())
-        .build()
-        .writeToStream(channel);
-    body.writeToStream(channel);
-    auth.writeToStream(channel);
-  }
-
-  /**
    * Deserialise request from given stream.
    *
    * <p>Request header is parsed from its raw form, ensuring that all fields are valid. The
@@ -75,5 +56,24 @@ public class Request {
     RequestAuth auth = RequestAuth.readFromStream(channel, rawHeader.getAuthLen());
 
     return Request.builder().header(RequestHeader.fromRaw(rawHeader)).body(body).auth(auth).build();
+  }
+
+  /**
+   * Serialise request and write it to given stream.
+   *
+   * <p>Request header is first converted to its raw format before serialization. # Errors - if an
+   * IO operation fails while writing any of the subfields of the request,
+   * `ResponseStatus::ConnectionError` is returned. - if encoding any of the fields in the header
+   * fails, `ResponseStatus::InvalidEncoding` is returned.
+   */
+  public void writeToStream(WritableByteChannel channel) throws IOException {
+    header
+        .toRaw()
+        .bodyLen(body.length())
+        .authLen((short) auth.getBuffer().length())
+        .build()
+        .writeToStream(channel);
+    body.writeToStream(channel);
+    auth.writeToStream(channel);
   }
 }

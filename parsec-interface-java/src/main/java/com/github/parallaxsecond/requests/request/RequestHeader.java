@@ -32,6 +32,17 @@ public class RequestHeader {
   /** Opcode of the operation to perform. */
   private final Opcode opcode;
 
+  public static RequestHeader fromRaw(WireHeader_1_0 wireHeader) {
+    return RequestHeader.builder()
+        .provider(ProviderId.fromCode(wireHeader.getProvider()))
+        .session(wireHeader.getSession())
+        .contentType(BodyType.fromCode(wireHeader.getContentType()))
+        .acceptType(BodyType.fromCode(wireHeader.getAcceptType()))
+        .authType(AuthType.fromCode(wireHeader.getAuthType()))
+        .opcode(Opcode.fromCode(wireHeader.getOpcode()))
+        .build();
+  }
+
   public WireHeader_1_0.WireHeader_1_0Builder toRaw() {
     return WireHeader_1_0.builder()
         .flags((short) 0)
@@ -46,16 +57,5 @@ public class RequestHeader {
         .status((short) 0)
         .reserved1((byte) 0)
         .reserved2((byte) 0);
-  }
-
-  public static RequestHeader fromRaw(WireHeader_1_0 wireHeader) {
-    return RequestHeader.builder()
-        .provider(ProviderId.fromCode(wireHeader.getProvider()))
-        .session(wireHeader.getSession())
-        .contentType(BodyType.fromCode(wireHeader.getContentType()))
-        .acceptType(BodyType.fromCode(wireHeader.getAcceptType()))
-        .authType(AuthType.fromCode(wireHeader.getAuthType()))
-        .opcode(Opcode.fromCode(wireHeader.getOpcode()))
-        .build();
   }
 }

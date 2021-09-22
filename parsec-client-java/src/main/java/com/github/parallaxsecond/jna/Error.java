@@ -10,8 +10,6 @@ public interface Error extends Library {
   Logger log = LoggerFactory.getLogger(Error.class);
   Error IMPL = Native.load("c", Error.class);
 
-  String strerror(int errno);
-
   static void throwError(long ret) {
     if (ret < 0) {
       int errno = Native.getLastError();
@@ -28,4 +26,6 @@ public interface Error extends Library {
       }
     }
   }
+
+  String strerror(int errno);
 }

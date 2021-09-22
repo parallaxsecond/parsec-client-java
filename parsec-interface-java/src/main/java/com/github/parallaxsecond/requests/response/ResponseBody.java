@@ -20,10 +20,6 @@ public class ResponseBody {
     this(ByteBuffer.wrap(buffer));
   }
 
-  public void writeToStream(WritableByteChannel channel) throws IOException {
-    channel.write(buffer);
-  }
-
   public static ResponseBody readFromStream(ReadableByteChannel channel, int len)
       throws IOException {
     ByteBuffer buf = ByteBuffer.allocate(len).order(ByteOrder.LITTLE_ENDIAN);
@@ -35,6 +31,10 @@ public class ResponseBody {
     buf.limit(Math.min(len, read));
 
     return new ResponseBody(buf.slice());
+  }
+
+  public void writeToStream(WritableByteChannel channel) throws IOException {
+    channel.write(buffer);
   }
 
   public int length() {

@@ -26,20 +26,6 @@ public class Response {
   private final ResponseBody body;
 
   /**
-   * Serialise response and write it to given stream.
-   *
-   * <p>Header is converted to a raw format before serializing.
-   *
-   * <p># Errors - if writing any of the subfields (header or body) fails, then
-   * `ResponseStatus::ConnectionError` is returned. - if encoding any of the fields in the header
-   * fails, then `ResponseStatus::InvalidEncoding` is returned.
-   */
-  public void writeToStream(WritableByteChannel channel) throws IOException {
-    header.toRaw().bodyLen(body.length()).build().writeToStream(channel);
-    body.writeToStream(channel);
-  }
-
-  /**
    * Deserialise response from given stream.
    *
    * <p>The `bodyLenLimit` parameter allows the interface client to reject requests that are longer
@@ -63,5 +49,19 @@ public class Response {
 
     ResponseBody body = ResponseBody.readFromStream(channel, bodyLen);
     return Response.builder().header(ResponseHeader.fromRaw(rawHeader)).body(body).build();
+  }
+
+  /**
+   * Serialise response and write it to given stream.
+   *
+   * <p>Header is converted to a raw format before serializing.
+   *
+   * <p># Errors - if writing any of the subfields (header or body) fails, then
+   * `ResponseStatus::ConnectionError` is returned. - if encoding any of the fields in the header
+   * fails, then `ResponseStatus::InvalidEncoding` is returned.
+   */
+  public void writeToStream(WritableByteChannel channel) throws IOException {
+    header.toRaw().bodyLen(body.length()).build().writeToStream(channel);
+    body.writeToStream(channel);
   }
 }

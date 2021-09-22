@@ -16,11 +16,6 @@ import static com.github.parallaxsecond.requests.Opcode.*;
 public class ProtobufConverter implements Convert {
   private static final Map<Opcode, ProtobufOpConverter> converters = initConverters();
 
-  @Override
-  public BodyType bodyType() {
-    return BodyType.PROTOBUF;
-  }
-
   private static Map<Opcode, ProtobufOpConverter> initConverters() {
     Map<Opcode, ProtobufOpConverter> converters = new HashMap<>();
     converters.put(PING, new PingProtobufOpConverter());
@@ -48,6 +43,11 @@ public class ProtobufConverter implements Convert {
     converters.put(LIST_CLIENTS, new ListClientsProtobufOpConverter());
     converters.put(DELETE_CLIENT, new DeleteClientProtobufOpConverter());
     return converters;
+  }
+
+  @Override
+  public BodyType bodyType() {
+    return BodyType.PROTOBUF;
   }
 
   private ProtobufOpConverter getConverter(Opcode opcode) {
