@@ -17,7 +17,7 @@ public interface Convert {
    *
    * <p># Errors - if deserialization fails, `ResponseStatus::DeserializingBodyFailed` is returned
    */
-  NativeOperation bodyToOperation(RequestBody body, Opcode opcode);
+  NativeOperation bodyToOperation(RequestBody body, Opcode opcode) throws Exception;
 
   /**
    * Create a request body from a native operation object. # Errors - if serialization fails,

@@ -349,7 +349,7 @@ public class BasicClient {
    * <p>let client: BasicClient = BasicClient::new(None); let attributes =
    * client.key_attributes("my_key"); # Ok(())} ```
    */
-  public PsaKeyAttributes keyAttributes(String keyName) {
+  public PsaKeyAttributes.KeyAttributes keyAttributes(String keyName) {
     return listKeys().getKeys().stream()
         .filter(ki -> ki.getName().equals(keyName))
         .findFirst()

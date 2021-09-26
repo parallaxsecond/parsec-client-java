@@ -24,6 +24,7 @@ public interface NativeResult {
 
     /** Structure holding the basic information that defines the providers in */
     Opcode opcode = Opcode.LIST_PROVIDERS;
+
     List<ProviderInfo> providers;
 
     /** the service for client discovery. */
@@ -100,7 +101,7 @@ public interface NativeResult {
       String name;
       /** The key attributes. */
       // FIXME
-      PsaKeyAttributes attributes;
+      PsaKeyAttributes.KeyAttributes attributes;
     }
   }
   /** ListClients result */

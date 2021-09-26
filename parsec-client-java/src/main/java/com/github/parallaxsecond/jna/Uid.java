@@ -3,11 +3,13 @@ package com.github.parallaxsecond.jna;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 public interface Uid extends Library {
-  Uid IMPL = Native.load("c", Uid.class);
+  AtomicReference<Uid> IMPL = new AtomicReference<>(Native.load("c", Uid.class));
 
   static int getUid() {
-    return IMPL.getuid();
+    return IMPL.get().getuid();
   }
 
   int getuid();

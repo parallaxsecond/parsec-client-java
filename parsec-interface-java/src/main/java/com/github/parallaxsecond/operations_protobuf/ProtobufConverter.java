@@ -59,7 +59,7 @@ public class ProtobufConverter implements Convert {
   }
 
   @Override
-  public NativeOperation bodyToOperation(RequestBody body, Opcode opcode) {
+  public NativeOperation bodyToOperation(RequestBody body, Opcode opcode) throws Exception {
     return getConverter(opcode).bodyToOperation(body, opcode);
   }
 

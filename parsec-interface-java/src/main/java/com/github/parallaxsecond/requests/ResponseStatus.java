@@ -2,6 +2,7 @@ package com.github.parallaxsecond.requests;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 /**
  * C-like enum mapping response status options to their code.
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 // FIXME enum naming convention all caps _
 @Getter
+@ToString
 public enum ResponseStatus {
   /** Successful operation */
   Success(0, "successful operation"),
