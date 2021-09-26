@@ -49,13 +49,13 @@ RUN yum install -y socat procps-ng && \
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
 COPY --from=builder /root/.cargo/bin/parsec* /usr/bin/
-COPY config.toml /
+COPY config.toml /etc/parsec/
 COPY --from=builder --chown=${PARSEC_UID}:${PARSEC_GID} /usr/libexec/parsec /usr/libexec/parsec
 COPY --from=builder --chown=${PARSEC_UID}:${PARSEC_GID} /var/lib/parsec /var/lib/parsec
 COPY --from=builder --chown=${PARSEC_UID}:${PARSEC_GID} /home/parsec /home/parsec
 COPY --from=builder --chown=${PARSEC_UID}:${PARSEC_GID} /run/parsec /run/parsec
 COPY --from=builder --chown=${PARSEC_UID}:${PARSEC_GID} /etc/parsec /etc/parsec
 
-#FIXME not working as user need to investigate ..
-#USER parsec:parsec
-CMD ["parsec", "-c", "/config.toml"]
+USER parsec:parsec
+WORKDIR "/home/parsec"
+CMD ["parsec", "-c", "/etc/parsec/config.toml"]

@@ -26,7 +26,7 @@ class BasicClientTest {
       ParsecContainer.withVersion("0.8.1")
           .withFileSystemBind(
               new File("src/test/resources/mbed-crypto-config.toml").getAbsolutePath(),
-              "/config.toml");
+              "/etc/parsec/config.toml");
 
   private BasicClient client;
   private final String eccKey = "eccKey";
