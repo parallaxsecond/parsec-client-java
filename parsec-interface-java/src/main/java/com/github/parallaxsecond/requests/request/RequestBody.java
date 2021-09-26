@@ -1,5 +1,6 @@
 package com.github.parallaxsecond.requests.request;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
@@ -10,7 +11,7 @@ import java.nio.channels.WritableByteChannel;
 
 @RequiredArgsConstructor
 public class RequestBody {
-  private final ByteBuffer buffer;
+  @Getter private final ByteBuffer buffer;
 
   public RequestBody(byte[] buf) {
     this(ByteBuffer.wrap(buf));

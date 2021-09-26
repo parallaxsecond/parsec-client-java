@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static java.util.Collections.singletonList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 public class ParsecContainer extends GenericContainer<ParsecContainer> {
@@ -105,5 +106,14 @@ public class ParsecContainer extends GenericContainer<ParsecContainer> {
                   "TCP4:localhost:" + this.localPort
                 });
     log.info("started socat on local machine");
+  }
+
+  @SneakyThrows
+  public void parsecTool(String... args) {
+    String[] args_ = new String[args.length + 1];
+    System.arraycopy(args, 0, args_, 1, args.length);
+    args_[0] = "parsec-tool";
+    ExecResult r = execInContainer(args_);
+    assertEquals(0, r.getExitCode(), getLogs() + "\n" + r.getStdout() + "\n" + r.getStderr());
   }
 }

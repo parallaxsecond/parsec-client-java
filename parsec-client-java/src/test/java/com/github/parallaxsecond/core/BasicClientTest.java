@@ -2,37 +2,46 @@ package com.github.parallaxsecond.core;
 
 import com.github.parallaxsecond.ParsecContainer;
 import com.github.parallaxsecond.core.ipc_handler.IpcHandler;
+import com.github.parallaxsecond.jna.Uid;
 import com.github.parallaxsecond.operations.NativeResult;
 import com.github.parallaxsecond.requests.Opcode;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.org.awaitility.Awaitility;
 import psa_algorithm.PsaAlgorithm;
 
-import java.net.URI;
+import java.io.File;
 import java.security.SecureRandom;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
 class BasicClientTest {
 
   @Container
-  ParsecContainer parsecContainer = ParsecContainer.withVersion("0.8.1");
+  ParsecContainer parsecContainer =
+      ParsecContainer.withVersion("0.8.1")
+          .withFileSystemBind(
+              new File("src/test/resources/mbed-crypto-config.toml").getAbsolutePath(),
+              "/config.toml");
 
   private BasicClient client;
+  private final String eccKey = "eccKey";
+  private final String rsaKey = "rsaKey";
 
   @BeforeEach
   void setup() {
+    // uid of the parse user in docker
+    Uid.IMPL.set(() -> 4000);
     Awaitility.await().until(parsecContainer::isRunning);
     this.client =
-            BasicClient.client(
-                    "testapp", IpcHandler.connectFromUrl(parsecContainer.getSocketUri()));
+        BasicClient.client(
+            "parsec-tool", IpcHandler.connectFromUrl(parsecContainer.getSocketUri()));
+    parsecContainer.parsecTool("create-ecc-key", "--key-name", eccKey);
+    parsecContainer.parsecTool("create-rsa-key", "--key-name", rsaKey);
   }
   /**
    * would be good to have this dockerized ssh can forward AF_UNIX sockets
@@ -53,6 +62,14 @@ class BasicClientTest {
   }
 
   @Test
+  @SneakyThrows
+  void listKeys() {
+    NativeResult.ListKeysResult keys = client.listKeys();
+    assertEquals(2, keys.getKeys().size());
+  }
+
+  @Test
+  @SneakyThrows
   void hash() {
     PsaAlgorithm.Algorithm.AsymmetricSignature keyargs =
         PsaAlgorithm.Algorithm.AsymmetricSignature.newBuilder()
@@ -60,15 +77,27 @@ class BasicClientTest {
                 PsaAlgorithm.Algorithm.AsymmetricSignature.Ecdsa.newBuilder()
                     .setHashAlg(
                         PsaAlgorithm.Algorithm.AsymmetricSignature.SignHash.newBuilder()
-                            .setSpecific(PsaAlgorithm.Algorithm.Hash.SHA_512)
+                            .setSpecific(PsaAlgorithm.Algorithm.Hash.SHA_256)
                             .build())
                     .build())
             .build();
+
     byte[] bytes = new byte[1024];
     new SecureRandom().nextBytes(bytes);
-    NativeResult.PsaSignHashResult res = client.psaSignHash("some.key", bytes, keyargs);
-    byte[] signature = res.getSignature();
+    NativeResult.PsaSignHashResult hashResult = client.psaSignHash(eccKey, bytes, keyargs);
+    byte[] signature = hashResult.getSignature();
     assertNotNull(signature);
 
+    NativeResult.PsaVerifyHashResult verifiedResult =
+        client.psaVerifyHash(eccKey, bytes, keyargs, signature);
+    assertNotNull(verifiedResult);
+
+    try {
+      bytes[0] += 1;
+      client.psaVerifyHash(eccKey, bytes, keyargs, signature);
+      fail("signature must no verify");
+    } catch (Exception e) {
+      // OK
+    }
   }
 }
