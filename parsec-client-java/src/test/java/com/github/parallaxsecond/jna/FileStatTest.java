@@ -23,7 +23,7 @@ class FileStatTest {
       assertFalse(Files.exists(socketFile));
       UnixSocket.bind(socket, socketFile.toFile().getAbsolutePath());
       assertTrue(Files.exists(socketFile));
-      assertTrue(FileStat.isSocket(socketFile.toFile().getAbsolutePath()));
+      assertTrue(FileStat.isSocket(socketFile));
     } finally {
       UnixSocket.closeSocket(socket);
     }

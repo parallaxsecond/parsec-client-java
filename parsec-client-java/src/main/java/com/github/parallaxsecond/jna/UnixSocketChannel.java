@@ -17,7 +17,7 @@ public class UnixSocketChannel implements ByteChannel {
   private volatile boolean open;
 
   public UnixSocketChannel(@NonNull Path path, Duration timeout) {
-    if (!Files.exists(path) || !FileStat.isSocket(path.toString())) {
+    if (!Files.exists(path) || !FileStat.isSocket(path)) {
       throw new InvalidSocketAddressException(path);
     }
     this.socket = UnixSocket.unixSocket();
