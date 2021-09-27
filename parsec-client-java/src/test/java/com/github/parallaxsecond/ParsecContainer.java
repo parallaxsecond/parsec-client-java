@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 public class ParsecContainer extends GenericContainer<ParsecContainer> {
-  private static final String IMAGE_NAME = "parsec-docker-test-image";
+  private static final String IMAGE_NAME = "parallaxsecond/parsec";
   private static final String PARSEC_SOCKET_FILE = "parsec.sock";
   private static final String PARSEC_RUN_DIR = "/run/parsec/";
   private static final String PARSEC_SOCKET = PARSEC_RUN_DIR + PARSEC_SOCKET_FILE;

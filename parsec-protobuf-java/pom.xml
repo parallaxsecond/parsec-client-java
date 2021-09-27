@@ -14,8 +14,6 @@
     <properties>
         <protoc.version>3.18.0</protoc.version>
         <protobuf.version>3.18.0</protobuf.version>
-        <!-- remove this if not on m1 -->
-        <!--os.detected.classifier>osx-x86_64</os.detected.classifier-->
     </properties>
 
     <dependencies>

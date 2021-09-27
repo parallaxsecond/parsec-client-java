@@ -1,0 +1,19 @@
+version: '3'
+services:
+  parsec-rust-builder:
+    build:
+      context: .
+      dockerfile: rust-builder/Dockerfile
+      args:
+        REGISTRY: ${REGISTRY}
+    image: ${REGISTRY}/parsec-rust-builder:latest
+
+  parsec-tool:
+    build:
+      context: .
+      dockerfile: parsec-tool-builder/Dockerfile
+      args:
+        REGISTRY: ${REGISTRY}
+        PARSEC_TOOL_VERSION: 0.4.0
+    image: ${REGISTRY}/parsec-tool-builder:latest
+
