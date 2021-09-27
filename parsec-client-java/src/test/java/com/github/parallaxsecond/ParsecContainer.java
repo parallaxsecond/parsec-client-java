@@ -11,6 +11,7 @@ import java.net.ServerSocket;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -20,8 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Slf4j
 public class ParsecContainer extends GenericContainer<ParsecContainer> {
   private static final String IMAGE_NAME = "parsec-docker-test-image";
+  private static final String PARSEC_SOCKET_FILE = "parsec.sock";
   private static final String PARSEC_RUN_DIR = "/run/parsec/";
-  private static final String PARSEC_SOCKET = PARSEC_RUN_DIR + "parsec.sock";
+  private static final String PARSEC_SOCKET = PARSEC_RUN_DIR + PARSEC_SOCKET_FILE;
   private static final int PARSEC_TCP_PORT = 4444;
   private final int localPort = findFreePort();
   private final Path parsecSockSocat;
@@ -33,7 +35,8 @@ public class ParsecContainer extends GenericContainer<ParsecContainer> {
   public ParsecContainer(final DockerImageName dockerImageName) {
     super(dockerImageName);
     Path runDir = Files.createTempDirectory("ps");
-    this.parsecSock = runDir.resolve("ps.sock");
+    Files.setPosixFilePermissions(runDir, PosixFilePermissions.fromString("rwxrwxrwx"));
+    this.parsecSock = runDir.resolve(PARSEC_SOCKET_FILE);
     this.parsecSockSocat = runDir.resolve("ps_socat.sock");
     this.withFileSystemBind(
         runDir.toFile().getAbsoluteFile().getAbsolutePath(), PARSEC_RUN_DIR, BindMode.READ_WRITE);
