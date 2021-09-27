@@ -19,67 +19,20 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.0.0</version>
-                <configuration>
-                    <executable>docker</executable>
-                    <workingDirectory>${project.basedir}</workingDirectory>
-
-                </configuration>
                 <executions>
                     <execution>
-                        <id>latest</id>
+                        <id>buildx</id>
                         <goals>
                             <goal>exec</goal>
                         </goals>
                         <phase>package</phase>
                         <configuration>
-                            <arguments>
-                                <argument>build</argument>
-                                <argument>--build-arg</argument>
-                                <argument>PARSEC_BRANCH=main</argument>
-                                <argument>.</argument>
-                                <argument>-t</argument>
-                                <argument>${project.artifactId}:latest</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>0.8.1</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <arguments>
-                                <argument>build</argument>
-                                <argument>--build-arg</argument>
-                                <argument>PARSEC_BRANCH=0.8.1</argument>
-                                <argument>.</argument>
-                                <argument>-t</argument>
-                                <argument>${project.artifactId}:0.8.1</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>0.7.0</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <arguments>
-                                <argument>build</argument>
-                                <argument>--build-arg</argument>
-                                <argument>PARSEC_BRANCH=0.7.0</argument>
-                                <argument>.</argument>
-                                <argument>-t</argument>
-                                <argument>${project.artifactId}:0.7.0</argument>
-                            </arguments>
+                            <executable>./build.sh</executable>
+                            <workingDirectory>${project.basedir}</workingDirectory>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
-
     </build>
-
 </project>

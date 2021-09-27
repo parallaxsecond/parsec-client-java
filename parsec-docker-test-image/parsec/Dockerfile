@@ -1,21 +1,6 @@
-FROM amazonlinux:2 as builder
-
-RUN set -e -x; \
-    yum install -y git gcc shadow-utils cmake3 make gcc-c++ pkgconfig clang-devel;\
-    ln -s /usr/bin/cmake3 /usr/bin/cmake
-
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
-
-# Workaround for incorrect aarch64 entry in cargo build
-RUN ln -s /usr/bin/gcc /usr/bin/aarch64-linux-gnu-gcc
-
-ARG PARSEC_TOOL_VERSION=0.4.0
-RUN set -e -x; \
-    source $HOME/.cargo/env; \
-    git clone https://github.com/parallaxsecond/parsec-tool; \
-    cd parsec-tool; \
-    git checkout ${PARSEC_TOOL_VERSION}; \
-    cargo install --path .
+ARG REGISTRY
+FROM ${REGISTRY}/parsec-tool-builder:latest as parsec-tool
+FROM ${REGISTRY}/parsec-rust-builder:latest as builder
 
 ARG PARSEC_BRANCH=0.8.1
 ARG PARSEC_FEATURES="cryptoauthlib-provider,mbed-crypto-provider,unix-peer-credentials-authenticator,direct-authenticator"
@@ -40,7 +25,7 @@ ENV RUST_LOG=info
 ARG PARSEC_UID=4000
 ARG PARSEC_GID=4000
 
-RUN yum install -y socat procps-ng && \
+RUN yum install -y socat && \
     rm -rf /root/.cache && \
     yum clean all && \
     rm -rf /var/cache/yum && \
@@ -49,7 +34,8 @@ RUN yum install -y socat procps-ng && \
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
 COPY --from=builder /root/.cargo/bin/parsec* /usr/bin/
-COPY config.toml /etc/parsec/
+COPY --from=parsec-tool /root/.cargo/bin/parsec* /usr/bin/
+COPY parsec/config.toml /etc/parsec/
 COPY --from=builder --chown=${PARSEC_UID}:${PARSEC_GID} /usr/libexec/parsec /usr/libexec/parsec
 COPY --from=builder --chown=${PARSEC_UID}:${PARSEC_GID} /var/lib/parsec /var/lib/parsec
 COPY --from=builder --chown=${PARSEC_UID}:${PARSEC_GID} /home/parsec /home/parsec
