@@ -1,0 +1,29 @@
+name: MVN Build
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: ./parsec-docker-test-image/parsec_docker_cache
+          key: ${{ runner.os }}-parsec_docker_cache-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-parsec_docker_cache-
+      - name: Set up JDK 8
+        uses: actions/setup-java@v2
+        with:
+          java-version: '8'
+          distribution: 'zulu'
+          architecture: x64
+          cache: maven
+      - name: Build with Maven
+        run: ./mvnw --batch-mode --update-snapshots verify

@@ -1,28 +1,15 @@
 #!/bin/bash -e
-function docker_arch() {
-  case "${arch}" in
-    amd64*|x86_64*|x64*)
-      echo "linux/amd64"
-    ;;
-    arm64*|aarch64*)
-        echo "linux/arm64"
-    ;;
-    *)
-      echo "linux/$(arch)"
-    ;;
-  esac
-}
-PLATFORMS="$(docker_arch)"
-PUSH="false"
+docker_cache=parsec_docker_cache
 
-export REGISTRY=parallaxsecond
-export DOCKER_CLI_EXPERIMENTAL=enabled
-docker run --privileged --rm tonistiigi/binfmt --install all
-BUILDX_BASE="docker buildx bake --progress plain --set *.platform=${PLATFORMS}"
-BUILDX_BUILDER="${BUILDX_BASE} --set *.output=type=image,push=false -f docker-compose-builder.yml"
-BUILDX="${BUILDX_BASE} --set *.output=type=image,push=${PUSH} -f docker-compose.yml"
+CACHE_CONFIG=""
+if (docker buildx inspect |grep "Driver: docker-container"); then
+  CACHE_CONFIG=" --set *.cache-from=type=local,src=${docker_cache} --set *.cache-to=mode=max,type=local,dest=${docker_cache}_new"
+fi
 
-${BUILDX_BUILDER} parsec-rust-builder
-${BUILDX_BUILDER}
-${BUILDX}
+# shellcheck disable=SC2086
+docker buildx bake ${CACHE_CONFIG} \
+  --progress plain \
+  --load
 
+rm -rf ${docker_cache} || true
+mv ${docker_cache}_new ${docker_cache} || true
