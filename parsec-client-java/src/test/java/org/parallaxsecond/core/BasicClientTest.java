@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.org.awaitility.Awaitility;
-import psa_algorithm.PsaAlgorithm;
+import org.parallaxsecond.parsec.internal.protobuf.psa_algorithm.PsaAlgorithm;
 
 import java.io.File;
 import java.security.SecureRandom;

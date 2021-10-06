@@ -6,7 +6,7 @@ import org.parallaxsecond.requests.Opcode;
 import org.parallaxsecond.requests.request.RequestBody;
 import org.parallaxsecond.requests.response.ResponseBody;
 import com.google.protobuf.InvalidProtocolBufferException;
-import ping.Ping;
+import org.parallaxsecond.parsec.internal.protobuf.ping.Ping;
 
 public class PingProtobufOpConverter implements ProtobufOpConverter {
 
