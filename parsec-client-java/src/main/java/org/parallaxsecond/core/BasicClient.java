@@ -11,10 +11,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.parallaxsecond.exceptions.*;
-import psa_algorithm.PsaAlgorithm;
-import psa_key_attributes.PsaKeyAttributes;
-import psa_raw_key_agreement.PsaRawKeyAgreement;
+import org.parallaxsecond.parsec.internal.protobuf.psa_algorithm.PsaAlgorithm;
+import org.parallaxsecond.parsec.internal.protobuf.psa_key_attributes.PsaKeyAttributes;
+import org.parallaxsecond.parsec.internal.protobuf.psa_raw_key_agreement.PsaRawKeyAgreement;
 
 import java.time.Duration;
 

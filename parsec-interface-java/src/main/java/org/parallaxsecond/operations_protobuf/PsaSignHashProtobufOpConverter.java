@@ -9,7 +9,7 @@ import org.parallaxsecond.requests.request.RequestBody;
 import org.parallaxsecond.requests.response.ResponseBody;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import psa_sign_hash.PsaSignHash;
+import org.parallaxsecond.parsec.internal.protobuf.psa_sign_hash.PsaSignHash;
 
 public class PsaSignHashProtobufOpConverter implements ProtobufOpConverter {
   @Override

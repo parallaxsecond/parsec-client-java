@@ -4,9 +4,9 @@ import org.parallaxsecond.requests.Opcode;
 import org.parallaxsecond.requests.ProviderId;
 import lombok.Builder;
 import lombok.Value;
-import psa_algorithm.PsaAlgorithm;
-import psa_key_attributes.PsaKeyAttributes;
-import psa_raw_key_agreement.PsaRawKeyAgreement;
+import org.parallaxsecond.parsec.internal.protobuf.psa_algorithm.PsaAlgorithm;
+import org.parallaxsecond.parsec.internal.protobuf.psa_key_attributes.PsaKeyAttributes;
+import org.parallaxsecond.parsec.internal.protobuf.psa_raw_key_agreement.PsaRawKeyAgreement;
 
 /**
  * # Rust representation of operations

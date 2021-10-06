@@ -7,7 +7,7 @@ import org.parallaxsecond.requests.ProviderId;
 import org.parallaxsecond.requests.request.RequestBody;
 import org.parallaxsecond.requests.response.ResponseBody;
 import com.google.protobuf.InvalidProtocolBufferException;
-import list_providers.ListProviders;
+import org.parallaxsecond.parsec.internal.protobuf.list_providers.ListProviders;
 
 import java.util.UUID;
 import java.util.stream.Collectors;

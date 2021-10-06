@@ -6,7 +6,7 @@ import org.parallaxsecond.requests.ProviderId;
 import org.parallaxsecond.secrecy.Secret;
 import lombok.Builder;
 import lombok.Value;
-import psa_key_attributes.PsaKeyAttributes;
+import org.parallaxsecond.parsec.internal.protobuf.psa_key_attributes.PsaKeyAttributes;
 
 import java.util.List;
 import java.util.Set;

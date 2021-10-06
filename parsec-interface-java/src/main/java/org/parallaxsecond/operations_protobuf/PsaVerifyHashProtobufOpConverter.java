@@ -8,7 +8,7 @@ import org.parallaxsecond.requests.request.RequestBody;
 import org.parallaxsecond.requests.response.ResponseBody;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import psa_verify_hash.PsaVerifyHash;
+import org.parallaxsecond.parsec.internal.protobuf.psa_verify_hash.PsaVerifyHash;
 
 public class PsaVerifyHashProtobufOpConverter implements ProtobufOpConverter {
   @Override
