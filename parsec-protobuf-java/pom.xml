@@ -33,13 +33,46 @@
         </extensions>
         <plugins>
             <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+                <version>1.13.0</version>
+                <executions>
+                    <execution>
+                        <id>execute</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <properties>
+                        <protobuf_src_dir>${basedir}/../parsec-operations/protobuf</protobuf_src_dir>
+                        <protobuf_dest_dir>${project.build.directory}/protobuf</protobuf_dest_dir>
+                        <protobuf_java_package>org.parallaxsecond.parsec.internal.protobuf</protobuf_java_package>
+                    </properties>
+                    <scripts>
+                        <script>${project.basedir}/filter_protobuf.groovy</script>
+                    </scripts>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy</artifactId>
+                        <!-- any version of Groovy \>= 1.5.0 should work here -->
+                        <version>3.0.7</version>
+                        <scope>runtime</scope>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
                 <version>0.6.1</version>
                 <configuration>
                     <protocArtifact>com.google.protobuf:protoc:${protoc.version}:exe:${os.detected.classifier}
                     </protocArtifact>
-                    <protoSourceRoot>${basedir}/../parsec-operations/protobuf</protoSourceRoot>
+                    <protoSourceRoot>${project.build.directory}/protobuf</protoSourceRoot>
                 </configuration>
                 <executions>
                     <execution>

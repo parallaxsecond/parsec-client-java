@@ -7,7 +7,7 @@ import org.parallaxsecond.requests.request.RequestBody;
 import org.parallaxsecond.requests.response.ResponseBody;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import psa_generate_random.PsaGenerateRandom;
+import org.parallaxsecond.parsec.internal.protobuf.psa_generate_random.PsaGenerateRandom;
 
 import static org.parallaxsecond.operations.NativeOperation.PsaGenerateRandomOperation;
 import static org.parallaxsecond.operations.NativeResult.PsaGenerateRandomResult;
