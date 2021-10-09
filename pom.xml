@@ -30,6 +30,7 @@
         <module>parsec-protobuf-java</module>
         <module>parsec-interface-java</module>
         <module>parsec-client-java</module>
+        <module>parsec-jca-java</module>
     </modules>
 
     <build>

@@ -1071,7 +1071,7 @@ public class BasicClient {
    *
    * <p>See [`list_opcodes`].
    */
-  public NativeResult.PsaGenerateRandomResult psaGenerateRandom(long nbytes) {
+  public byte[] psaGenerateRandom(long nbytes) {
     ProviderId cryptoProvider = this.canProvideCrypto();
 
     NativeOperation.PsaGenerateRandomOperation op =
@@ -1080,7 +1080,7 @@ public class BasicClient {
     NativeResult res = this.operationClient.processOperation(op, cryptoProvider, this.authData);
 
     if (res instanceof NativeResult.PsaGenerateRandomResult) {
-      return ((NativeResult.PsaGenerateRandomResult) res);
+      return ((NativeResult.PsaGenerateRandomResult) res).getRandomBytes();
     } else {
       // Should really not be reached given the checks we do, but it's not impossible if some
       // changes happen in the interface

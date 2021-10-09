@@ -105,10 +105,8 @@ class BasicClientTest {
   void generateRandom() {
     long length = 512L;
 
-    NativeResult.PsaGenerateRandomResult randomResult = client.psaGenerateRandom(length);
-    assertNotNull(randomResult);
+    byte[] randomBytes  = client.psaGenerateRandom(length);
 
-    byte[] randomBytes = randomResult.getRandomBytes();
     assertNotNull(randomBytes);
     assertEquals((long)randomBytes.length, length);
   }
