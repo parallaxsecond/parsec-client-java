@@ -1,6 +1,6 @@
 package org.parallaxsecond.operations_protobuf;
 
-import org.parallaxsecond.exceptions.InterfaceException;
+import org.parallaxsecond.requests.InterfaceException;
 import org.parallaxsecond.operations.Convert;
 import org.parallaxsecond.operations.NativeResult;
 import org.parallaxsecond.requests.BodyType;

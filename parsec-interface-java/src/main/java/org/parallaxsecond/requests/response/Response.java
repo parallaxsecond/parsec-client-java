@@ -1,6 +1,6 @@
 package org.parallaxsecond.requests.response;
 
-import org.parallaxsecond.exceptions.InterfaceException;
+import org.parallaxsecond.requests.InterfaceException;
 import org.parallaxsecond.requests.ResponseStatus;
 import org.parallaxsecond.requests.request.common.WireHeader_1_0;
 import lombok.Builder;

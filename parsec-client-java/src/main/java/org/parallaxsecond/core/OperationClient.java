@@ -3,7 +3,7 @@ package org.parallaxsecond.core;
 import org.parallaxsecond.Authentication;
 import org.parallaxsecond.core.ipc_handler.IpcHandler;
 import org.parallaxsecond.exceptions.ClientException;
-import org.parallaxsecond.exceptions.InterfaceException;
+import org.parallaxsecond.requests.InterfaceException;
 import org.parallaxsecond.exceptions.InvalidServiceResponseTypeException;
 import org.parallaxsecond.exceptions.ServiceException;
 import org.parallaxsecond.operations.Convert;
