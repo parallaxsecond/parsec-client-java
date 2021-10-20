@@ -1,4 +1,4 @@
-package org.parallaxsecond.jna;
+package org.parallaxsecond.core;
 
 import lombok.SneakyThrows;
 

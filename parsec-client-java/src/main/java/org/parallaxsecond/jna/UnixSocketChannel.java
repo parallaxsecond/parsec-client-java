@@ -1,5 +1,6 @@
 package org.parallaxsecond.jna;
 
+import org.parallaxsecond.core.FileStat;
 import org.parallaxsecond.exceptions.InvalidSocketAddressException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
