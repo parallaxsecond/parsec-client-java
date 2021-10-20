@@ -1,6 +1,6 @@
 package org.parallaxsecond.exceptions;
 
-import org.parallaxsecond.jna.FileStat;
+import org.parallaxsecond.core.FileStat;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

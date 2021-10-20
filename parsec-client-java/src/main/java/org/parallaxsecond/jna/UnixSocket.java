@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 
-interface UnixSocket extends Library {
+public interface UnixSocket extends Library {
   // these are the same for mac and linux
   int AF_UNIX = 1;
   int SOCK_STREAM = 1;
