@@ -9,28 +9,22 @@
         <artifactId>parsec-java</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>parsec-client-java</artifactId>
+    <artifactId>parsec-jca-java</artifactId>
+
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>parsec-interface-java</artifactId>
+            <artifactId>parsec-client-java</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.32</version>
-        </dependency>
-        <dependency>
-            <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna</artifactId>
-            <version>5.9.0</version>
-        </dependency>
-        <dependency>
-            <groupId>io.spiffe</groupId>
-            <artifactId>java-spiffe-provider</artifactId>
-            <version>0.7.0</version>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>parsec-client-java</artifactId>
+            <version>${project.version}</version>
+            <classifier>tests</classifier>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <!-- make sure that docker images are build first -->
@@ -39,6 +33,11 @@
             <version>${project.version}</version>
             <type>pom</type>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.32</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -59,21 +58,12 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 </project>
