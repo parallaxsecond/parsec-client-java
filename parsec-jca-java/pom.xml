@@ -19,19 +19,10 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>parsec-client-java</artifactId>
-            <version>${project.version}</version>
-            <classifier>tests</classifier>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <!-- make sure that docker images are build first -->
             <groupId>${project.groupId}</groupId>
-            <artifactId>parsec-docker-test-image</artifactId>
+            <artifactId>parsec-testcontainers</artifactId>
             <version>${project.version}</version>
-            <type>pom</type>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -49,12 +40,6 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>5.8.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>1.16.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

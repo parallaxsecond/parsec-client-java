@@ -1,6 +1,4 @@
 
-
-
 module parallax2nd_interface_java {
     requires static lombok;
     requires org.slf4j;
