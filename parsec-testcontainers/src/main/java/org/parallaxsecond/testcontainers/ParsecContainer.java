@@ -1,8 +1,7 @@
-package org.parallaxsecond;
-
-import org.parallaxsecond.jna.Platform;
+package org.parallaxsecond.testcontainers;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -12,11 +11,11 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static java.util.Collections.singletonList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 public class ParsecContainer extends GenericContainer<ParsecContainer> {
@@ -65,10 +64,15 @@ public class ParsecContainer extends GenericContainer<ParsecContainer> {
   @Override
   public void start() {
     super.start();
-    if (Platform.isOsx()) {
+    if (isOsx()) {
       useSocat();
     }
   }
+  private static boolean isOsx() {
+    String os = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
+    return ((os.contains("mac")) || (os.contains("darwin")));
+  }
+
 
   @Override
   public void close() {
@@ -117,6 +121,6 @@ public class ParsecContainer extends GenericContainer<ParsecContainer> {
     System.arraycopy(args, 0, args_, 1, args.length);
     args_[0] = "parsec-tool";
     ExecResult r = execInContainer(args_);
-    assertEquals(0, r.getExitCode(), getLogs() + "\n" + r.getStdout() + "\n" + r.getStderr());
+    Assertions.assertEquals(0, r.getExitCode(), getLogs() + "\n" + r.getStdout() + "\n" + r.getStderr());
   }
 }
