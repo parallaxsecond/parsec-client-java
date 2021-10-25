@@ -1,11 +1,9 @@
 package org.parallaxsecond.parsec.security.provider;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assume;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.parallaxsecond.ParsecContainer;
+import org.parallaxsecond.testcontainers.ParsecContainer;
 import org.parallaxsecond.jna.Uid;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
