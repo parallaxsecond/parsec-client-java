@@ -10,6 +10,7 @@
         <maven.compiler.source>1.9</maven.compiler.source>
         <maven.compiler.target>1.9</maven.compiler.target>
         <lombok.version>1.18.22</lombok.version>
+        <jpms.args></jpms.args>
     </properties>
     <dependencies>
         <dependency>
@@ -22,7 +23,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.8.0</version>
+            <version>5.8.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -75,14 +76,48 @@
                             <version>3.8.1</version>
                             <executions>
                                 <execution>
-                                    <id>default-compile</id>
+                                    <id>default-testCompile</id>
                                     <goals>
-                                        <goal>compile</goal>
+                                        <goal>testCompile</goal>
                                     </goals>
                                     <configuration>
                                         <release>9</release>
                                         <source>1.9</source>
                                         <target>1.9</target>
+                                        <testExcludes>
+                                            <testExclude>module-info.java</testExclude>
+                                        </testExcludes>
+                                    </configuration>
+                                </execution>
+                                <execution>
+                                    <id>base-testCompile</id>
+                                    <goals>
+                                        <goal>testCompile</goal>
+                                    </goals>
+                                    <configuration>
+                                        <testExcludes>
+                                            <testExclude>module-info.java</testExclude>
+                                        </testExcludes>
+                                        <release>8</release>
+                                        <source>1.8</source>
+                                        <target>1.8</target>
+                                    </configuration>
+                                </execution>
+                                <execution>
+                                    <id>default-compile</id>
+                                    <goals>
+                                        <goal>compile</goal>
+                                    </goals>
+                                    <configuration>
+                                        <excludes>
+                                            <exclude>module-info.java</exclude>
+                                        </excludes>
+                                        <release>9</release>
+                                        <source>1.9</source>
+                                        <target>1.9</target>
+                                        <compilerArgs>
+                                            <arg>${jpms.args}</arg>
+                                        </compilerArgs>
                                     </configuration>
                                 </execution>
                                 <execution>
@@ -125,5 +160,24 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.2.7</version>
+                <executions>
+                    <execution>
+                        <id>flatten-pom</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <flattenMode>clean</flattenMode>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 </project>

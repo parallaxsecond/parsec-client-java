@@ -49,7 +49,7 @@
                     <properties>
                         <protobuf_src_dir>${basedir}/../parsec-operations/protobuf</protobuf_src_dir>
                         <protobuf_dest_dir>${project.build.directory}/protobuf</protobuf_dest_dir>
-                        <protobuf_java_package>org.parallaxsecond.parsec.internal.protobuf</protobuf_java_package>
+                        <protobuf_java_package>org.parallaxsecond.parsec.protobuf</protobuf_java_package>
                     </properties>
                     <scripts>
                         <script>${project.basedir}/filter_protobuf.groovy</script>
