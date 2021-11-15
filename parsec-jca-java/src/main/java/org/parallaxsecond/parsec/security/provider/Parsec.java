@@ -2,13 +2,12 @@ package org.parallaxsecond.parsec.security.provider;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.parallaxsecond.core.BasicClient;
-import org.parallaxsecond.core.ipc_handler.IpcHandler;
+import org.parallaxsecond.parsec.client.core.BasicClient;
+import org.parallaxsecond.parsec.client.core.ipc_handler.IpcHandler;
 
 import java.io.IOException;
 import java.net.URI;
 import java.security.Provider;
-import java.security.Security;
 import java.util.Properties;
 
 /**

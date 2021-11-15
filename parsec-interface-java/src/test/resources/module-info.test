@@ -1,0 +1,6 @@
+
+--add-opens
+  org.parallaxsecond.parsec.protocol/org.parallaxsecond.parsec.protocol.requests=org.junit.platform.commons
+
+--add-reads
+  org.parallaxsecond.parsec.protocol=org.junit.jupiter.api

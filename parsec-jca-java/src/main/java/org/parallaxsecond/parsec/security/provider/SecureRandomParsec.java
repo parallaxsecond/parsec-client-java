@@ -2,7 +2,7 @@ package org.parallaxsecond.parsec.security.provider;
 
 import java.security.SecureRandomSpi;
 
-import org.parallaxsecond.core.BasicClient;
+import org.parallaxsecond.parsec.client.core.BasicClient;
 
 /**
  *

@@ -42,6 +42,11 @@
             <version>5.8.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <version>5.1.1</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>
