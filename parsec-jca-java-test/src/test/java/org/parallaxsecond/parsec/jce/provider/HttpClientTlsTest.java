@@ -1,6 +1,5 @@
 package org.parallaxsecond.parsec.jce.provider;
 
-
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -43,25 +42,28 @@ import static java.util.Optional.ofNullable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-/**
- *
- */
+/** */
 @Testcontainers
 @Slf4j
 class HttpClientTlsTest {
 
     private static final char[] keystorePassword = "changeme".toCharArray();
+
     @Container
-    GenericContainer<?> nginxContainer = new GenericContainer<>("parallaxsecond/nginx-test:latest")
-            .withExposedPorts(80, 443)
-            .waitingFor(new HttpWaitStrategy().forPort(80).forStatusCode(200))
-            .withFileSystemBind(absFile("src/test/resources/nginx-client-auth/init.sh"), "/init.sh");
+    GenericContainer<?> nginxContainer =
+            new GenericContainer<>("parallaxsecond/nginx-test:latest")
+                    .withExposedPorts(80, 443)
+                    .waitingFor(new HttpWaitStrategy().forPort(80).forStatusCode(200))
+                    .withFileSystemBind(
+                            absFile("src/test/resources/nginx-client-auth/init.sh"), "/init.sh");
+
     @Container
     ParsecContainer parsecContainer =
             ParsecContainer.withVersion("0.8.1")
                     .withFileSystemBind(
                             absFile("src/test/resources/mbed-crypto-config.toml"),
                             "/etc/parsec/config.toml");
+
     String hostPort;
     Path clientKeyStore;
     Path serverTrustStore;
@@ -70,13 +72,25 @@ class HttpClientTlsTest {
     @SneakyThrows
     static Stream<Arguments> testHttpClient() {
         return Stream.of(
-                Arguments.of(403, (KmfTestFactory) t -> null),
-                Arguments.of(200, (KmfTestFactory) t -> KeyManagerFactory.getInstance("X509", new ParsecProvider())),
-                Arguments.of(200, (KmfTestFactory) t -> {
-                    KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-                    kmf.init(defaultKeystoreFromFile(t.clientKeyStore), keystorePassword);
-                    return kmf;
-                }));
+                Arguments.of("No keys", 403, (KmfTestFactory) t -> null),
+                Arguments.of(
+                        "JCA/Parsec",
+                        200,
+                        (KmfTestFactory)
+                                t -> KeyManagerFactory.getInstance("X509", new ParsecProvider())),
+                Arguments.of(
+                        "JCA/Default/FS",
+                        200,
+                        (KmfTestFactory)
+                                t -> {
+                                    KeyManagerFactory kmf =
+                                            KeyManagerFactory.getInstance(
+                                                    KeyManagerFactory.getDefaultAlgorithm());
+                                    kmf.init(
+                                            defaultKeystoreFromFile(t.clientKeyStore),
+                                            keystorePassword);
+                                    return kmf;
+                                }));
     }
 
     @SneakyThrows
@@ -97,16 +111,20 @@ class HttpClientTlsTest {
     void setup() {
         Awaitility.await().until(nginxContainer::isRunning);
         hostPort = format("%s:%s", nginxContainer.getHost(), nginxContainer.getMappedPort(443));
-        ExecResult r = nginxContainer.execInContainer("sh", "-c", format("/init.sh %s %s /",
-                hostPort,
-                new String(keystorePassword)));
+        ExecResult r =
+                nginxContainer.execInContainer(
+                        "sh",
+                        "-c",
+                        format("/init.sh %s %s /", hostPort, new String(keystorePassword)));
         assertEquals(0, r.getExitCode(), r.getStderr() + r.getStdout());
 
         serverTrustStore = Files.createTempFile("serverChainCert", ".jks");
-        nginxContainer.copyFileFromContainer("/keys/server_chain.jks", serverTrustStore.toFile().getAbsolutePath());
+        nginxContainer.copyFileFromContainer(
+                "/keys/server_chain.jks", serverTrustStore.toFile().getAbsolutePath());
 
         clientKeyStore = Files.createTempFile("clientKeyStore", ".jks");
-        nginxContainer.copyFileFromContainer("/keys/client.jks", clientKeyStore.toFile().getAbsolutePath());
+        nginxContainer.copyFileFromContainer(
+                "/keys/client.jks", clientKeyStore.toFile().getAbsolutePath());
 
         tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         tmf.init(defaultKeystoreFromFile(serverTrustStore));
@@ -121,34 +139,31 @@ class HttpClientTlsTest {
     @MethodSource
     @ParameterizedTest
     @SneakyThrows
-    void testHttpClient(int expectedResponseCode, KmfTestFactory kmfFactory) {
+    void testHttpClient(String description, int expectedResponseCode, KmfTestFactory kmfFactory) {
+        log.info("running test {}", description);
         KeyManagerFactory kmf = kmfFactory.get(this);
 
         SSLContext sslContext = SSLContext.getInstance("TLS");
-        sslContext.init(ofNullable(kmf).map(KeyManagerFactory::getKeyManagers).orElse(null),
+        sslContext.init(
+                ofNullable(kmf).map(KeyManagerFactory::getKeyManagers).orElse(null),
                 tmf.getTrustManagers(),
                 null);
 
         assertNotNull(sslContext.getProvider());
 
-        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext,
-                NoopHostnameVerifier.INSTANCE);
+        SSLConnectionSocketFactory sslsf =
+                new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE);
         Registry<ConnectionSocketFactory> socketFactoryRegistry =
-                RegistryBuilder.<ConnectionSocketFactory>create()
-                        .register("https", sslsf)
-                        .build();
+                RegistryBuilder.<ConnectionSocketFactory>create().register("https", sslsf).build();
         BasicHttpClientConnectionManager connectionManager =
                 new BasicHttpClientConnectionManager(socketFactoryRegistry);
-        CloseableHttpClient httpClient = HttpClients.custom()
-                .setConnectionManager(connectionManager).build();
+        CloseableHttpClient httpClient =
+                HttpClients.custom().setConnectionManager(connectionManager).build();
         CloseableHttpResponse r = httpClient.execute(new HttpGet("https://" + hostPort));
         assertEquals(expectedResponseCode, r.getCode());
-
     }
 
     interface KmfTestFactory {
         KeyManagerFactory get(HttpClientTlsTest t) throws Exception;
     }
-
 }
-
