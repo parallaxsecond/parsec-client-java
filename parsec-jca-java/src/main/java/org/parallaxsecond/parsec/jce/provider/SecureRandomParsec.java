@@ -1,4 +1,4 @@
-package org.parallaxsecond.parsec.security.provider;
+package org.parallaxsecond.parsec.jce.provider;
 
 import java.security.SecureRandomSpi;
 
@@ -12,7 +12,7 @@ public final class SecureRandomParsec extends SecureRandomSpi {
   BasicClient client;
 
   public SecureRandomParsec() {
-    this.client = Parsec.getBasicClient();
+    this.client = ParsecProvider.getBasicClient();
   }
 
   @Override

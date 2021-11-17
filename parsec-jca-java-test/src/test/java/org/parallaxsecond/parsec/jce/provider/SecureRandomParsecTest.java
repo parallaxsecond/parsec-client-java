@@ -1,10 +1,10 @@
-package org.parallaxsecond.parsec.security.provider;
+package org.parallaxsecond.parsec.jce.provider;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.parallaxsecond.testcontainers.ParsecContainer;
 import org.parallaxsecond.parsec.client.jna.Uid;
+import org.parallaxsecond.testcontainers.ParsecContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.org.awaitility.Awaitility;
@@ -17,7 +17,7 @@ import java.security.*;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
  *
@@ -35,7 +35,7 @@ class SecureRandomParsecTest {
 
   private final String eccKey = "eccKey";
   private final String rsaKey = "rsaKey";
-  private final Provider parsec = new Parsec();
+  private final Provider parsec = new ParsecProvider();
   private final String[] algorithms = {"NativePRNG", "NativePRNGBlocking", "NativePRNGNonBlocking"};
 
   SecureRandomParsecTest() throws IOException {
@@ -47,7 +47,7 @@ class SecureRandomParsecTest {
     Uid.IMPL.set(() -> 4000);
     Awaitility.await().until(parsecContainer::isRunning);
     URI socketUri = parsecContainer.getSocketUri();
-    Parsec.init(socketUri);
+    ParsecProvider.init(socketUri);
     parsecContainer.parsecTool("create-ecc-key", "--key-name", eccKey);
     parsecContainer.parsecTool("create-rsa-key", "--key-name", rsaKey);
     Security.insertProviderAt(parsec, 1);

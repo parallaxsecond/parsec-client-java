@@ -33,6 +33,7 @@
         <module>parsec-interface-java</module>
         <module>parsec-client-java</module>
         <module>parsec-jca-java</module>
+        <module>parsec-jca-java-test</module>
     </modules>
 
     <profiles>
