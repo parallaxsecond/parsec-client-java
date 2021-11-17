@@ -1,6 +1,6 @@
 group "default" {
   #targets = ["parsec", "parsec_0.7.0", "parsec_0.8.1"]
-  targets = ["parsec_0.8.1"]
+  targets = ["parsec_0.8.1", "nginx-test"]
 }
 target "generic" {
   context = "."
@@ -8,9 +8,16 @@ target "generic" {
     REGISTRY = "parallaxsecond"
   }
 }
+target "nginx-test" {
+  inherits = ["generic"]
+  context = "./nginx"
+  tags = [
+    "parallaxsecond/nginx-test:latest"
+  ]
+}
 target "parsec" {
   inherits = ["generic"]
-  dockerfile = "./Dockerfile"
+  context = "./parsec"
   args = {
     PARSEC_BRANCH = "main"
   }
