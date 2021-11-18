@@ -103,16 +103,20 @@ openssl req -new -x509 -days 10 -config ca.cnf -key ca.key -out ca.crt
 # Client
 echo "creating client key"
 openssl genrsa -out client.key 4096
+openssl rsa -in client.key -outform der -out client.der
 echo "creating client csr"
 openssl req -new -config client.cnf -key client.key -out client.csr
 echo "signing client csr"
 openssl x509 -req -days 10 -in client.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out client.crt
+
 cat client.crt ca.crt > client_chain.crt
 
 openssl pkcs12 -export -in client_chain.crt -inkey client.key \
                -out client.p12 -name client \
                -CAfile ca.crt -caname root -password "pass:${PASSWORD}"
-
+rm -f client_cert.jks
+keytool -import -file client_chain.crt -alias client \
+       -keystore client_cert.jks -storepass "${PASSWORD}" -trustcacerts -noprompt
 rm -f client.jks
 keytool -importkeystore \
         -deststorepass "${PASSWORD}" -destkeypass "${PASSWORD}" -destkeystore client.jks \
@@ -131,7 +135,8 @@ openssl x509 -req -days 10 -in server.csr -CA ca.crt -CAkey ca.key -set_serial 0
 cat server.crt ca.crt > server_chain.crt
 # writing java truststore
 rm -f server_chain.jks
-keytool -import -file server_chain.crt -alias server -keystore server_chain.jks -storepass "${PASSWORD}" -trustcacerts -noprompt
+keytool -import -file server_chain.crt -alias server \
+       -keystore server_chain.jks -storepass "${PASSWORD}" -trustcacerts -noprompt
 
 # reload nginx
 nginx -s reload

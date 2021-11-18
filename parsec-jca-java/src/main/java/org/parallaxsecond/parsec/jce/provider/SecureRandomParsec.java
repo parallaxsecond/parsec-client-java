@@ -1,19 +1,12 @@
 package org.parallaxsecond.parsec.jce.provider;
 
+import lombok.RequiredArgsConstructor;
+
 import java.security.SecureRandomSpi;
 
-import org.parallaxsecond.parsec.client.core.BasicClient;
-
-/**
- *
- */
+@RequiredArgsConstructor
 public final class SecureRandomParsec extends SecureRandomSpi {
-
-  BasicClient client;
-
-  public SecureRandomParsec() {
-    this.client = ParsecProvider.getBasicClient();
-  }
+  private final ParsecClientAccessor parsecClientFactory;
 
   @Override
   protected void engineSetSeed(byte[] seed) {
@@ -23,7 +16,7 @@ public final class SecureRandomParsec extends SecureRandomSpi {
 
   @Override
   protected void engineNextBytes(byte[] bytes) {
-    byte[] parsecBytes = client.psaGenerateRandom(bytes.length);
+    byte[] parsecBytes = parsecClientFactory.get().psaGenerateRandom(bytes.length);
     System.arraycopy(parsecBytes, 0, bytes, 0, parsecBytes.length);
   }
 

@@ -1,5 +1,6 @@
 package org.parallaxsecond.parsec.jce.provider;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,14 +11,14 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.org.awaitility.Awaitility;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
-import java.security.*;
+import java.security.Provider;
+import java.security.SecureRandom;
+import java.security.Security;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
  *
@@ -33,52 +34,35 @@ class SecureRandomParsecTest {
               new File("src/test/resources/mbed-crypto-config.toml").getAbsolutePath(),
               "/etc/parsec/config.toml");
 
-  private final String eccKey = "eccKey";
-  private final String rsaKey = "rsaKey";
-  private final Provider parsec = new ParsecProvider();
+  Provider parsec;
   private final String[] algorithms = {"NativePRNG", "NativePRNGBlocking", "NativePRNGNonBlocking"};
 
-  SecureRandomParsecTest() throws IOException {
-  }
 
   @BeforeEach
-  void setup() throws IOException {
+  void setup() {
     // uid of the parse user in docker
     Uid.IMPL.set(() -> 4000);
     Awaitility.await().until(parsecContainer::isRunning);
     URI socketUri = parsecContainer.getSocketUri();
-    ParsecProvider.init(socketUri);
+    parsec = ParsecProvider.builder()
+            .socketUri(socketUri)
+            .build();
+    String eccKey = "eccKey";
     parsecContainer.parsecTool("create-ecc-key", "--key-name", eccKey);
+    String rsaKey = "rsaKey";
     parsecContainer.parsecTool("create-rsa-key", "--key-name", rsaKey);
     Security.insertProviderAt(parsec, 1);
     Security.getProvider(parsec.getName());
   }
 
-
-  private SecureRandom getInstance(String algorithm, String provider) {
-    SecureRandom secureRandomParsec = null;
-    try {
-      secureRandomParsec = SecureRandom.getInstance(algorithm, provider);
-    } catch (UnsupportedOperationException e) {
-      assertEquals(e.getClass(), UnsupportedOperationException.class);
-    } catch (NoSuchAlgorithmException e) {
-      fail(algorithm + " algorithm not found.", e);
-    } catch (NoSuchProviderException e) {
-      fail("Provider " + provider + " not found.", e);
-    }
-    return secureRandomParsec;
-  }
-
-  private void testSetSeed(SecureRandom secureRandom, byte[] seed) {
-  }
-
   @Test
+  @SneakyThrows
   void setSeedBytes() {
     byte[] seed = new byte[512];
     for (String algorithm : algorithms) {
       try {
-        SecureRandom secureRandom = getInstance(algorithm, parsec.getName());
-        assumeTrue(secureRandom != null);
+        SecureRandom secureRandom = SecureRandom.getInstance(algorithm, parsec.getName());
+        assertNotNull(secureRandom);
         secureRandom.setSeed(seed);
       } catch (UnsupportedOperationException e) {
         assertEquals(e.getClass(), UnsupportedOperationException.class);
@@ -87,13 +71,14 @@ class SecureRandomParsecTest {
   }
 
   @Test
+  @SneakyThrows
   void nextBytes() {
     byte[] rand = new byte[4];
     byte[] originalRand = new byte[4];
     System.arraycopy(rand, 0, originalRand, 0, rand.length);
-    assertTrue(Arrays.equals(rand, originalRand));
+    assertArrayEquals(rand, originalRand);
     for (String algorithm : algorithms) {
-      SecureRandom secureRandom = getInstance(algorithm, parsec.getName());
+      SecureRandom secureRandom = SecureRandom.getInstance(algorithm, parsec.getName());
       secureRandom.nextBytes(rand);
       assertFalse(Arrays.equals(rand, originalRand));
       log.info("Generated random number: " + ByteBuffer.wrap(rand).getInt());
@@ -102,15 +87,16 @@ class SecureRandomParsecTest {
   }
 
   @Test
+  @SneakyThrows
   void engineGenerateSeed() {
     byte[] seed = new byte[4];
     byte[] originalRand = new byte[4];
     System.arraycopy(seed, 0, originalRand, 0, seed.length);
-    assertTrue(Arrays.equals(seed, originalRand));
+    assertArrayEquals(seed, originalRand);
     for (String algorithm : algorithms) {
-      SecureRandom secureRandom = getInstance(algorithm, parsec.getName());
+      SecureRandom secureRandom = SecureRandom.getInstance(algorithm, parsec.getName());
       seed = secureRandom.generateSeed(4);
-      assertTrue(seed.length == 4);
+      assertEquals(4, seed.length);
       log.info("Generated random seed: " + ByteBuffer.wrap(seed).getInt());
     }
   }
