@@ -111,12 +111,24 @@ openssl x509 -req -days 10 -in client.csr -CA ca.crt -CAkey ca.key -set_serial 0
 
 cat client.crt ca.crt > client_chain.crt
 
+
+# contains only certs
+openssl pkcs12 -export -nokeys -in client.crt \
+               -name client -CAfile cclient_chain.pem \
+               -passout "pass:${PASSWORD}" -out client.cert.p12
+
+rm -f client_cert.jks
+keytool -importcert -file client_chain.crt -alias client \
+       -keystore client_cert.jks -storepass "${PASSWORD}" -noprompt
+keytool -importcert -file ca.crt -alias ca \
+       -keystore client_cert.jks -storepass "${PASSWORD}" -noprompt
+
+# contains cert, certchain and keys
+
 openssl pkcs12 -export -in client_chain.crt -inkey client.key \
                -out client.p12 -name client \
                -CAfile ca.crt -caname root -password "pass:${PASSWORD}"
-rm -f client_cert.jks
-keytool -import -file client_chain.crt -alias client \
-       -keystore client_cert.jks -storepass "${PASSWORD}" -trustcacerts -noprompt
+
 rm -f client.jks
 keytool -importkeystore \
         -deststorepass "${PASSWORD}" -destkeypass "${PASSWORD}" -destkeystore client.jks \

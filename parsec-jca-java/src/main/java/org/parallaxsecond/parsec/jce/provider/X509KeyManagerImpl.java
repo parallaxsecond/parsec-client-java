@@ -25,6 +25,16 @@ public final class X509KeyManagerImpl implements X509KeyManager {
         return Stream.of(keyTypes)
                 .flatMap(keyType -> certificates(keyType, issuers));
     }
+    private X509Certificate bySubjectX500Principal(X500Principal cn) {
+        return builders.stream()
+                .flatMap(ksb -> KeyStoreExtensions.allCertificates(KeyStoreExtensions.fromBuilder(ksb)))
+                .map(WithAlias::getObject)
+                .filter(c->c.getSubjectX500Principal() != null)
+                .filter(c->c.getSubjectX500Principal().equals(cn))
+                .findFirst()
+                .orElse(null);
+    }
+
     private Stream<WithAlias<X509Certificate>> certificates(String keyType, Principal[] issuers)  {
         Set<X500Principal> issuerSet = Arrays.stream(issuers)
                 .filter(i->i instanceof X500Principal)
@@ -34,19 +44,24 @@ public final class X509KeyManagerImpl implements X509KeyManager {
                 .flatMap(ksb -> certificates(KeyStoreExtensions.fromBuilder(ksb), keyType, issuerSet));
     }
 
-    private static Stream<WithAlias<X509Certificate>> certificates(KeyStore keyStore, String keyType, Set<X500Principal> issuers) {
-        return KeyStoreExtensions.aliases(keyStore)
-                .map(a -> KeyStoreExtensions.getCertificate(keyStore, a))
+
+    private Stream<X509Certificate> certificatesForAlias(String alias){
+        return builders.stream()
+                .map(ksb -> KeyStoreExtensions.getCertificate(KeyStoreExtensions.fromBuilder(ksb), alias))
                 .filter(Objects::nonNull)
-                .filter(c -> c.getObject() instanceof X509Certificate)
-                .map(c -> c.cast(X509Certificate.class))
+                .map(WithAlias::getObject)
+                .filter(X509Certificate.class::isInstance)
+                .map(X509Certificate.class::cast);
+    }
+
+    private static Stream<WithAlias<X509Certificate>> certificates(KeyStore keyStore, String keyType, Set<X500Principal> issuers) {
+        return KeyStoreExtensions.allCertificates(keyStore)
                 .filter(c -> c.getObject().getPublicKey() != null)
                 .filter(c -> c.getObject().getPublicKey().getAlgorithm() != null)
                 .filter(c -> c.getObject().getIssuerX500Principal() != null)
-                .filter(c -> c.getObject().getPublicKey().getAlgorithm().equals(keyType))
+                .filter(c -> keyType == null || c.getObject().getPublicKey().getAlgorithm().equals(keyType))
                 .filter(c -> issuers.contains(c.getObject().getIssuerX500Principal()));
     }
-
 
     @Override
     public String[] getClientAliases(String keyType, Principal[] issuers) {
@@ -80,11 +95,30 @@ public final class X509KeyManagerImpl implements X509KeyManager {
 
     @Override
     public X509Certificate[] getCertificateChain(String alias) {
-        throw new IllegalStateException("not implemented");
+        X509Certificate current = certificatesForAlias(alias)
+                .findFirst()
+                .orElse(null);
+        if (current == null) {
+            return null;
+        }
+        List<X509Certificate> chain = new ArrayList<>();
+        while (current != null && !chain.contains(current)) {
+            chain.add(current);
+            current = bySubjectX500Principal(current.getIssuerX500Principal());
+        }
+        return chain.toArray(new X509Certificate[0]);
     }
 
     @Override
     public PrivateKey getPrivateKey(String alias) {
-        throw new IllegalStateException("not implemented");
+
+        return parsecClientFactory.get().listKeys().getKeys().stream()
+                .filter(k -> k.getName().equals(alias))
+                .filter(k-> ParsecKeyAttributesHelper.algorithm(k.getAttributes())!= null)
+                .findFirst()
+                .map(keyInfo -> new ParsecPrivateKey(keyInfo.getName(),
+                        ParsecKeyAttributesHelper.algorithm(keyInfo.getAttributes()),
+                        ParsecKeyAttributesHelper.format(keyInfo.getAttributes())))
+                .orElse(null);
     }
 }
