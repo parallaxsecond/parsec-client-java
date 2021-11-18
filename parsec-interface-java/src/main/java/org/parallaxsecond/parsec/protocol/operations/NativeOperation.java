@@ -93,7 +93,7 @@ public interface NativeOperation {
     String keyName;
     /** `attributes` specifies the attributes for the new key. */
     // FIXME
-    PsaKeyAttributes attributes;
+    PsaKeyAttributes.KeyAttributes attributes;
     /**
      * `data` contains the bytes for the key, formatted in accordance with the requirements of the
      * provider for the key type specified in `attributes`. Debug is not derived for this because it

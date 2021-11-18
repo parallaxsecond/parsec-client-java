@@ -1,160 +1,94 @@
 package org.parallaxsecond.parsec.jce.provider;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.parallaxsecond.parsec.client.core.BasicClient;
 import org.parallaxsecond.parsec.client.core.ipc_handler.IpcHandler;
 
-import java.io.IOException;
 import java.net.URI;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
+import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Properties;
-
-import static java.util.Optional.ofNullable;
+import java.security.ProviderException;
+import java.util.function.Function;
 
 /** Parsec JCA Security Provider */
 @Slf4j
+
 public final class ParsecProvider extends Provider {
+  public static final String PROVIDER_NAME = "PARSEC";
+  private static final double VERSION = 648000/ Math.PI;
+  @Getter
+  private final ParsecClientAccessor parsecClientAccessor;
 
-  public static final String PROVIDER_NAME;
-  private static final double VERSION;
 
-  @Getter private static BasicClient basicClient;
-
-  static {
-    final Properties parsecProperties = new Properties();
-    try {
-      parsecProperties.load(
-          ParsecProvider.class.getClassLoader().getResourceAsStream("parsec.properties"));
-    } catch (IOException e) {
-      throw new IllegalStateException("Could not load parsec.properties, exiting.", e);
-    }
-    VERSION =
-        ofNullable(parsecProperties.getProperty("version"))
-            .filter(s -> s.matches("^([0-9]*[.][0-9]+).*"))
-            .map(s -> s.replaceAll("^([0-9]*[.][0-9]+).*", "$1"))
-            .map(Double::parseDouble)
-            .orElse(0.1);
-
-    PROVIDER_NAME = parsecProperties.getProperty("name");
-  }
-
-  /** Constructs a provider with the specified name, version number, and information. */
-  public ParsecProvider() {
-    super(
-        PROVIDER_NAME,
-        VERSION,
-        PROVIDER_NAME
-            + " provider, version "
-            + VERSION
-            + ", implementing secure random number generation.");
-    registerAlgorithms();
-  }
-
-  private void doRegister() {
-    ps(
-        "SecureRandom",
-        "NativePRNG",
-        "org.parallaxsecond.parsec.jce.provider.SecureRandomParsec",
-        null,
-        null);
-    ps(
-        "SecureRandom",
-        "NativePRNGBlocking",
-        "org.parallaxsecond.parsec.jce.provider.SecureRandomParsec",
-        null,
-        null);
-    ps(
-        "SecureRandom",
-        "NativePRNGNonBlocking",
-        "org.parallaxsecond.parsec.jce.provider.SecureRandomParsec",
-        null,
-        null);
-
-    // sun stuff from here
-
-    ps(
-        "KeyManagerFactory",
-        "X509",
-        "org.parallaxsecond.parsec.jce.provider.KeyManagerFactoryImpl",
-        null,
-        null);
-
-    ps("Signature", "MD5andSHA1withRSA", "sun.security.ssl.RSASignature", null, null);
-
-    ps(
-        "KeyManagerFactory",
-        "NewSunX509",
-        "sun.security.ssl.KeyManagerFactoryImpl$X509",
-        Arrays.asList("PKIX"),
-        null);
-
-    ps(
-        "TrustManagerFactory",
-        "SunX509",
-        "sun.security.ssl.TrustManagerFactoryImpl$SimpleFactory",
-        null,
-        null);
-    ps(
-        "TrustManagerFactory",
-        "PKIX",
-        "sun.security.ssl.TrustManagerFactoryImpl$PKIXFactory",
-        Arrays.asList("SunPKIX", "X509", "X.509"),
-        null);
-
-    ps(
-        "SSLContext",
-        "TLSv1",
-        "sun.security.ssl.SSLContextImpl$TLS10Context",
-        Arrays.asList("SSLv3"),
-        null);
-    ps("SSLContext", "TLSv1.1", "sun.security.ssl.SSLContextImpl$TLS11Context", null, null);
-    ps("SSLContext", "TLSv1.2", "sun.security.ssl.SSLContextImpl$TLS12Context", null, null);
-    ps("SSLContext", "TLSv1.3", "sun.security.ssl.SSLContextImpl$TLS13Context", null, null);
-    ps(
-        "SSLContext",
-        "TLS",
-        "sun.security.ssl.SSLContextImpl$TLSContext",
-        Arrays.asList("SSL"),
-        null);
-
-    ps("SSLContext", "DTLSv1.0", "sun.security.ssl.SSLContextImpl$DTLS10Context", null, null);
-    ps("SSLContext", "DTLSv1.2", "sun.security.ssl.SSLContextImpl$DTLS12Context", null, null);
-    ps("SSLContext", "DTLS", "sun.security.ssl.SSLContextImpl$DTLSContext", null, null);
-
-    ps("SSLContext", "Default", "sun.security.ssl.SSLContextImpl$DefaultSSLContext", null, null);
-
-    /*
-     * KeyStore
-     */
-    ps("KeyStore", "PKCS12", "sun.security.pkcs12.PKCS12KeyStore", null, null);
-  }
-
-  private void registerAlgorithms() {
-    AccessController.doPrivileged(
-        (PrivilegedAction<Void>)
-            () -> {
-              doRegister();
-              return null;
-            });
-  }
-
-  private void ps(
-      String type, String algo, String cn, List<String> a, HashMap<String, String> attrs) {
-    putService(new Provider.Service(this, type, algo, cn, a, attrs));
-  }
-
-  /**
-   * Initialise Parsec JCA Provider
-   *
-   * @param socketURI the socket on which Parsec is listening.
+  /** Constructs a provider with .
+   * @param socketUri URI of the domain socket the parsec daemon listens on.
    */
-  protected static void init(URI socketURI) {
-    basicClient = BasicClient.client("parsec-jca-provider", IpcHandler.connectFromUrl(socketURI));
+  @Builder
+  public ParsecProvider(URI socketUri) {
+    super(
+            PROVIDER_NAME,
+            VERSION,
+            String.format("%s provider, version %s.", PROVIDER_NAME, VERSION));
+    // create a new client each time for now
+    this.parsecClientAccessor = () -> BasicClient.client("parsec-jca-provider",
+                IpcHandler.connectFromUrl(socketUri));
+    ps(
+            "SecureRandom",
+            "NativePRNG",
+            "org.parallaxsecond.parsec.jce.provider.SecureRandomParsec",
+            SecureRandomParsec::new);
+    ps(
+            "SecureRandom",
+            "NativePRNGBlocking",
+            "org.parallaxsecond.parsec.jce.provider.SecureRandomParsec",
+            SecureRandomParsec::new);
+    ps(
+            "SecureRandom",
+            "NativePRNGNonBlocking",
+            "org.parallaxsecond.parsec.jce.provider.SecureRandomParsec",
+            SecureRandomParsec::new);
+
+    ps(
+            "KeyManagerFactory",
+            "X509",
+            "org.parallaxsecond.parsec.jce.provider.KeyManagerFactoryImpl",
+            KeyManagerFactoryImpl::new);
   }
+
+  private void ps(String type, String algorithm, String className, Function<ParsecClientAccessor, Object>  parsecClientFactory) {
+    putService(new ParsecProviderService(this, type, algorithm, className, parsecClientFactory));
+  }
+
+
+  private static final class ParsecProviderService extends Provider.Service {
+    private final Function<ParsecClientAccessor, Object> objectFactory;
+    ParsecProviderService(Provider p, String type, String algo, String className, Function<ParsecClientAccessor, Object> objectFactory) {
+      super(p, type, algo, className, null, null);
+      this.objectFactory = objectFactory;
+    }
+
+    @Override
+    public Object newInstance(Object ctrParamObj) throws NoSuchAlgorithmException {
+      try {
+        if (getProvider()instanceof ParsecProvider) {
+          return this.objectFactory.apply(((ParsecProvider) getProvider()).getParsecClientAccessor());
+        }
+      } catch (Exception e) {
+        throw new ProviderException(
+                String.format("Error constructing object for algorithm: %s, type: %s, provider %s",
+                        getAlgorithm(),
+                        getType(),
+                        getProvider()), e);
+      }
+      throw new ProviderException(String.format("No implementation for algorithm: %s, type: %s, provider %s",
+              getAlgorithm(),
+              getType(),
+              getProvider()));
+    }
+  }
+
+
+
 }

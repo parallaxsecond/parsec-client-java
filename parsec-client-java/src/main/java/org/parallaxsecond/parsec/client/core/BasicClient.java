@@ -531,7 +531,7 @@ public class BasicClient {
    * Hash::Sha256.into(), }.into(), }, }; client.psa_import_key("my_key", &ecc_private_key,
    * key_attrs); # Ok(())} ```
    */
-  public void psaImportKey(String keyName, byte[] keyMaterial, PsaKeyAttributes keyAttributes) {
+  public void psaImportKey(String keyName, byte[] keyMaterial, PsaKeyAttributes.KeyAttributes keyAttributes) {
     ProviderId cryptoProvider = this.canProvideCrypto();
     NativeResult res =
         this.operationClient.processOperation(
