@@ -6,7 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -36,6 +38,14 @@ public final class KeyStoreExtensions {
             log.warn("couldn't build keystore {}", builder, e);
             return null;
         }
+    }
+
+    static Stream<WithAlias<X509Certificate>> allCertificates(KeyStore keyStore) {
+        return KeyStoreExtensions.aliases(keyStore)
+                .map(a -> KeyStoreExtensions.getCertificate(keyStore, a))
+                .filter(Objects::nonNull)
+                .filter(c -> c.getObject() instanceof X509Certificate)
+                .map(c -> c.cast(X509Certificate.class));
     }
 
     @Value
