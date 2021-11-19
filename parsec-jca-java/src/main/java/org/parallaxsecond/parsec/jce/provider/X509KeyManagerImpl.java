@@ -3,6 +3,7 @@ package org.parallaxsecond.parsec.jce.provider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.parallaxsecond.parsec.jce.provider.KeyStoreExtensions.WithAlias;
+import org.parallaxsecond.parsec.protobuf.psa_key_attributes.PsaKeyAttributes;
 
 import javax.net.ssl.X509KeyManager;
 import javax.security.auth.x500.X500Principal;
@@ -11,6 +12,7 @@ import java.security.KeyStore;
 import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPublicKey;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -111,14 +113,34 @@ public final class X509KeyManagerImpl implements X509KeyManager {
 
     @Override
     public PrivateKey getPrivateKey(String alias) {
+        X509Certificate certificate = certificatesForAlias(alias).findFirst().orElse(null);
+        if (certificate == null) {
+            return null;
+        }
 
         return parsecClientFactory.get().listKeys().getKeys().stream()
                 .filter(k -> k.getName().equals(alias))
                 .filter(k-> ParsecKeyAttributesHelper.algorithm(k.getAttributes())!= null)
                 .findFirst()
-                .map(keyInfo -> new ParsecPrivateKey(keyInfo.getName(),
-                        ParsecKeyAttributesHelper.algorithm(keyInfo.getAttributes()),
-                        ParsecKeyAttributesHelper.format(keyInfo.getAttributes())))
+
+                .map(keyInfo -> {
+                    String algorithm = ParsecKeyAttributesHelper.algorithm(keyInfo.getAttributes());
+                    String format = ParsecKeyAttributesHelper.format(keyInfo.getAttributes());
+                    switch (algorithm) {
+                        case "RSA":
+                            if (! (certificate.getPublicKey() instanceof RSAPublicKey)) {
+                                return null;
+                            }
+                            return new ParsecRsaPrivateKey(
+                                    keyInfo.getName(),
+                                    algorithm,
+                                    format,
+                                    ((RSAPublicKey)certificate.getPublicKey()).getPublicExponent());
+                        default:
+                            throw new IllegalStateException("unsupported key algorithm " + algorithm);
+                    }
+
+                })
                 .orElse(null);
     }
 }

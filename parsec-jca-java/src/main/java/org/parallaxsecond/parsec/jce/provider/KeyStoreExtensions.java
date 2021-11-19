@@ -24,6 +24,9 @@ public final class KeyStoreExtensions {
     }
 
     static WithAlias<Certificate> getCertificate(KeyStore keyStore, String alias) {
+        if (keyStore == null) {
+            return null;
+        }
         try {
             return new WithAlias<>(alias, keyStore.getCertificate(alias));
         } catch (KeyStoreException e) {
