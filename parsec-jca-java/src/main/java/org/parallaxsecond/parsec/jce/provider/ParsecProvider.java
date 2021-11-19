@@ -55,6 +55,13 @@ public final class ParsecProvider extends Provider {
             "X509",
             "org.parallaxsecond.parsec.jce.provider.KeyManagerFactoryImpl",
             KeyManagerFactoryImpl::new);
+
+    ps(
+            "CertificateVerify",
+            "RSA",
+            "",
+            null
+    );
   }
 
   private void ps(String type, String algorithm, String className, Function<ParsecClientAccessor, Object>  parsecClientFactory) {

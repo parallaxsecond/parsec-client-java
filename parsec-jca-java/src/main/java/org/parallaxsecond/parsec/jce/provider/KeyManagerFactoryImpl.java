@@ -9,7 +9,6 @@ import javax.net.ssl.KeyStoreBuilderParameters;
 import javax.net.ssl.ManagerFactoryParameters;
 import java.security.*;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -37,6 +36,9 @@ public final class KeyManagerFactoryImpl extends KeyManagerFactorySpi {
 
     @Override
     protected KeyManager[] engineGetKeyManagers() {
+        if (!isInitialized) {
+            throw new IllegalStateException("engineInit(...) not called yet");
+        }
         return new KeyManager[] {this.keyManager};
     }
 }
