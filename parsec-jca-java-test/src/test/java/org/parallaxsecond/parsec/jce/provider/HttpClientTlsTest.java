@@ -185,9 +185,10 @@ class HttpClientTlsTest {
     @SneakyThrows
     static Stream<Arguments> testHttpClient() {
         return Stream.of(
-                Arguments.of("No keys", 403, (KmfTestFactory) t -> null),
-                Arguments.of("JCA/Parsec", 200, (KmfTestFactory) HttpClientTlsTest::prepareParsecTest),
-                Arguments.of("JCA/Default/FS", 200, (KmfTestFactory) HttpClientTlsTest::onFileJksTest));
+                //Arguments.of("No keys", 403, (KmfTestFactory) t -> null),
+                Arguments.of("JCA/Parsec", 200, (KmfTestFactory) HttpClientTlsTest::prepareParsecTest)
+        //        Arguments.of("JCA/Default/FS", 200, (KmfTestFactory) HttpClientTlsTest::onFileJksTest)
+        );
     }
 
     @MethodSource
