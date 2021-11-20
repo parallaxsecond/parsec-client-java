@@ -1,69 +1,44 @@
 package org.parallaxsecond.parsec.jce.provider;
 
-public abstract class ParsecRsaSignature extends ParsecSignature {
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.parallaxsecond.parsec.protobuf.psa_algorithm.PsaAlgorithm;
+import org.parallaxsecond.parsec.protobuf.psa_algorithm.PsaAlgorithm.Algorithm.AsymmetricSignature;
 
-    public ParsecRsaSignature(ParsecClientAccessor parsecClientAccessor) {
-        super(parsecClientAccessor);
+import java.security.MessageDigest;
+
+@RequiredArgsConstructor
+public enum ParsecRsaSignature implements ParsecSignatureInfo {
+    // keep this in order of priority
+    SHA512_WITH_RSA(
+            "SHA512withRSA",
+            pkcs1WithHash(PsaAlgorithm.Algorithm.Hash.SHA_512),
+            () -> MessageDigest.getInstance("SHA-512")),
+    SHA256_WITH_RSA("SHA256withRSA",
+            pkcs1WithHash(PsaAlgorithm.Algorithm.Hash.SHA_256),
+            () -> MessageDigest.getInstance("SHA-256")),
+
+    ;
+
+    @Getter private final String algorithmName;
+    @Getter private final AsymmetricSignature parsecAlgorithm;
+    @Getter private final MessageDigestFactory messageDigestFactory;
+
+    private static AsymmetricSignature pkcs1WithHash(PsaAlgorithm.Algorithm.Hash hash) {
+        return AsymmetricSignature.newBuilder()
+                .setRsaPkcs1V15Sign(AsymmetricSignature.RsaPkcs1v15Sign.newBuilder()
+                        .setHashAlg(AsymmetricSignature.SignHash.newBuilder()
+                                .setSpecific(hash)
+                                .build())
+                        .build())
+                .build();
     }
 
-    public static class MD2withRSA extends ParsecRsaSignature {
-        public MD2withRSA(ParsecClientAccessor parsecClientAccessor) {
-            super(parsecClientAccessor);
-        }
+    @Override
+    public ParsecSignature create(ParsecClientAccessor parsecClientAccessor) {
+        //AsymmetricSignature.newBuilder().setRsaPss(AsymmetricSignature.RsaPss.newBuilder()
+        return new ParsecSignature(this, parsecClientAccessor);
     }
 
-    public static class MD5withRSA extends ParsecRsaSignature {
-        public MD5withRSA(ParsecClientAccessor parsecClientAccessor) {
-            super(parsecClientAccessor);
-        }
-    }
-
-    public static class SHA1withRSA extends ParsecRsaSignature {
-        public SHA1withRSA(ParsecClientAccessor parsecClientAccessor) {
-            super(parsecClientAccessor);
-        }
-    }
-
-    public static class SHA224withRSA extends ParsecRsaSignature {
-        public SHA224withRSA(ParsecClientAccessor parsecClientAccessor) {
-            super(parsecClientAccessor);
-        }
-    }
-
-    public static class SHA256withRSA extends ParsecRsaSignature {
-        public SHA256withRSA(ParsecClientAccessor parsecClientAccessor) {
-            super(parsecClientAccessor);
-        }
-    }
-
-    public static class SHA384withRSA extends ParsecRsaSignature {
-        public SHA384withRSA(ParsecClientAccessor parsecClientAccessor) {
-            super(parsecClientAccessor);
-        }
-    }
-
-    public static class SHA512withRSA extends ParsecRsaSignature {
-        public SHA512withRSA(ParsecClientAccessor parsecClientAccessor) {
-            super(parsecClientAccessor);
-        }
-    }
-
-    public static class SHA512_224withRSA extends ParsecRsaSignature {
-        public SHA512_224withRSA(ParsecClientAccessor parsecClientAccessor) {
-            super(parsecClientAccessor);
-        }
-    }
-
-    public static class SHA512_256withRSA extends ParsecRsaSignature {
-        public SHA512_256withRSA(ParsecClientAccessor parsecClientAccessor) {
-            super(parsecClientAccessor);
-        }
-    }
-
-    public static class RSAPSSSignature extends ParsecRsaSignature {
-        public RSAPSSSignature(ParsecClientAccessor parsecClientAccessor) {
-            super(parsecClientAccessor);
-        }
-    }
 
 }
