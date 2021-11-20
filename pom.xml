@@ -28,6 +28,7 @@
         </dependency>
     </dependencies>
     <modules>
+        <module>examples/greengrass</module>
         <module>parsec-testcontainers</module>
         <module>parsec-protobuf-java</module>
         <module>parsec-interface-java</module>
