@@ -135,7 +135,7 @@ public final class X509KeyManagerImpl implements X509KeyManager {
                                     keyInfo.getName(),
                                     algorithm,
                                     format,
-                                    ((RSAPublicKey)certificate.getPublicKey()).getModulus());
+                                    ((RSAPublicKey)certificate.getPublicKey()));
                         default:
                             throw new IllegalStateException("unsupported key algorithm " + algorithm);
                     }
