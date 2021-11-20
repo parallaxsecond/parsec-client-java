@@ -55,7 +55,7 @@ public final class ParsecProvider extends Provider {
         ps(
                 "KeyManagerFactory",
                 "X509",
-                "org.parallaxsecond.parsec.jce.provider.KeyManagerFactoryImpl",
+                KeyManagerFactoryImpl.class.getCanonicalName(),
                 KeyManagerFactoryImpl::new);
 
         Stream.of(ParsecRsaSignature.values()).forEach(this::signature);
