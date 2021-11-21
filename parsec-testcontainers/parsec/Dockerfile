@@ -65,6 +65,8 @@ COPY --from=builder --chown=${PARSEC_UID}:${PARSEC_GID} /home/parsec /home/parse
 COPY --from=builder --chown=${PARSEC_UID}:${PARSEC_GID} /run/parsec /run/parsec
 COPY --from=builder --chown=${PARSEC_UID}:${PARSEC_GID} /etc/parsec /etc/parsec
 
-USER parsec:parsec
+# FIXME volume mount problem
+# Volumes are mounted as root first
+#USER parsec:parsec
 WORKDIR "/home/parsec"
 CMD ["parsec", "-c", "/etc/parsec/config.toml"]

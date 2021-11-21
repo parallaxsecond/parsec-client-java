@@ -1,0 +1,7 @@
+build_demo.sh
+secrets.env
+target
+.gitignore
+.git
+.cache
+parsec_docker_cache
