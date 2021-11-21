@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
     <groupId>org.parallaxsecond</groupId>
     <artifactId>parsec-java</artifactId>
@@ -57,94 +59,6 @@
                                 <excludes>
                                     <exclude>module-info.java</exclude>
                                 </excludes>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
-        </profile>
-        <profile>
-            <id>java9+</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-                <jdk>[1.9,)</jdk>
-            </activation>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-compiler-plugin</artifactId>
-                            <version>3.8.1</version>
-                            <executions>
-                                <execution>
-                                    <id>default-testCompile</id>
-                                    <goals>
-                                        <goal>testCompile</goal>
-                                    </goals>
-                                    <configuration>
-                                        <release>9</release>
-                                        <source>1.9</source>
-                                        <target>1.9</target>
-                                        <testExcludes>
-                                            <testExclude>module-info.java</testExclude>
-                                        </testExcludes>
-                                    </configuration>
-                                </execution>
-                                <execution>
-                                    <id>base-testCompile</id>
-                                    <goals>
-                                        <goal>testCompile</goal>
-                                    </goals>
-                                    <configuration>
-                                        <testExcludes>
-                                            <testExclude>module-info.java</testExclude>
-                                        </testExcludes>
-                                        <release>8</release>
-                                        <source>1.8</source>
-                                        <target>1.8</target>
-                                    </configuration>
-                                </execution>
-                                <execution>
-                                    <id>default-compile</id>
-                                    <goals>
-                                        <goal>compile</goal>
-                                    </goals>
-                                    <configuration>
-                                        <excludes>
-                                            <exclude>module-info.java</exclude>
-                                        </excludes>
-                                        <release>9</release>
-                                        <source>1.9</source>
-                                        <target>1.9</target>
-                                        <compilerArgs>
-                                            <arg>${jpms.args}</arg>
-                                        </compilerArgs>
-                                    </configuration>
-                                </execution>
-                                <execution>
-                                    <id>base-compile</id>
-                                    <goals>
-                                        <goal>compile</goal>
-                                    </goals>
-                                    <configuration>
-                                        <excludes>
-                                            <exclude>module-info.java</exclude>
-                                        </excludes>
-                                        <release>8</release>
-                                        <source>1.8</source>
-                                        <target>1.8</target>
-                                    </configuration>
-                                </execution>
-                            </executions>
-                            <configuration>
-                                <annotationProcessorPaths>
-                                    <path>
-                                        <groupId>org.projectlombok</groupId>
-                                        <artifactId>lombok</artifactId>
-                                        <version>${lombok.version}</version>
-                                    </path>
-                                </annotationProcessorPaths>
                             </configuration>
                         </plugin>
                     </plugins>
