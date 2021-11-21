@@ -7,6 +7,7 @@ import java.nio.channels.ByteChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.Objects;
 
 /** IPC handler for Unix domain sockets */
 public class UnixSocket implements IpcHandler {
@@ -22,6 +23,7 @@ public class UnixSocket implements IpcHandler {
   }
 
   public UnixSocket(String path, Duration timeout) {
+    Objects.requireNonNull(path);
     this.path = Paths.get(path);
     this.timeout = timeout;
   }
