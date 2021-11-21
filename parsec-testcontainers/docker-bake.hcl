@@ -1,6 +1,6 @@
 group "default" {
   #targets = ["parsec", "parsec_0.7.0", "parsec_0.8.1"]
-  targets = ["parsec_0.8.1", "nginx-test", "greengrass-test"]
+  targets = ["parsec_0.8.1", "nginx-test"]
 }
 target "generic" {
   context = "."
@@ -13,13 +13,6 @@ target "nginx-test" {
   context = "./nginx"
   tags = [
     "parallaxsecond/nginx-test:latest"
-  ]
-}
-target "greengrass-test" {
-  inherits = ["generic"]
-  context = "./greengrass"
-  tags = [
-    "parallaxsecond/greengrass-test:latest"
   ]
 }
 target "parsec" {

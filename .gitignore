@@ -3,5 +3,5 @@ target
 dependency-reduced-pom.xml
 .flattened-pom.xml
 .idea
-.run/GreenGrassProvision.run.xml
-.run/GreenGrassRun.run.xml
+.run/gg_*
+.run/parsec_docker_run.run.xml
