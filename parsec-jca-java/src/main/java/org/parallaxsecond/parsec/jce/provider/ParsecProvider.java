@@ -26,16 +26,21 @@ public final class ParsecProvider extends Provider {
      * @param socketUri URI of the domain socket the parsec daemon listens on.
      */
     @Builder
-    public ParsecProvider(URI socketUri) {
+    public ParsecProvider(URI socketUri, String parsecAppName) {
         super(
                 PROVIDER_NAME,
                 VERSION,
                 String.format("%s provider, version %s.", PROVIDER_NAME, VERSION));
         // create a new client each time for now
+
+        if (parsecAppName == null) {
+            parsecAppName = "parsec-jca-provider";
+        }
+        final String parsecAppName_ = parsecAppName;
+
         this.parsecClientAccessor =
                 () ->
-                        BasicClient.client(
-                                "parsec-jca-provider", IpcHandler.connectFromUrl(socketUri));
+                        BasicClient.client(parsecAppName_, IpcHandler.connectFromUrl(socketUri));
         ps(
                 "SecureRandom",
                 "NativePRNG",
