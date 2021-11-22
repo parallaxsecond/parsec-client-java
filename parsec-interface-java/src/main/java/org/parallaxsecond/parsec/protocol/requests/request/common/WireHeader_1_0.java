@@ -63,7 +63,7 @@ public class WireHeader_1_0 {
     ByteBuffer buf = ByteBuffer.allocate(REQUEST_HDR_SIZE + 6).order(ByteOrder.LITTLE_ENDIAN);
 
     channel.read(buf);
-    buf.flip();
+    ((Buffer)buf).flip();
 
     int magicNumber = buf.getInt();
     if (magicNumber != MAGIC_NUMBER) {

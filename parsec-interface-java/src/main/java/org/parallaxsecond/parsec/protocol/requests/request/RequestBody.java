@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.ReadableByteChannel;
@@ -21,7 +22,7 @@ public class RequestBody {
       throws IOException {
     ByteBuffer buf = ByteBuffer.allocate(len).order(ByteOrder.LITTLE_ENDIAN);
     channel.read(buf);
-    buf.flip();
+    ((Buffer)buf).flip();
     return new RequestBody(buf);
   }
 

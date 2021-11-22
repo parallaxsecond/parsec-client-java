@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.ReadableByteChannel;
@@ -27,8 +28,8 @@ public class ResponseBody {
     if (read != len) {
       log.warn("expected to read {} but only got {}", len, read);
     }
-    buf.flip();
-    buf.limit(Math.min(len, read));
+    ((Buffer)buf).flip();
+    ((Buffer)buf).limit(Math.min(len, read));
 
     return new ResponseBody(buf.slice());
   }
