@@ -15,8 +15,29 @@ public enum ParsecRsaSignature implements ParsecSignatureInfo {
             pkcs1WithHash(PsaAlgorithm.Algorithm.Hash.SHA_512),
             () -> MessageDigest.getInstance("SHA-512")),
     SHA256_WITH_RSA("SHA256withRSA",
-            pkcs1WithHash(PsaAlgorithm.Algorithm.Hash.SHA_256),
-            () -> MessageDigest.getInstance("SHA-256")),
+        pkcs1WithHash(PsaAlgorithm.Algorithm.Hash.SHA_256),
+        () -> MessageDigest.getInstance("SHA-256")),
+    NONE_WITH_RSA("NONEwithRSA",
+        pkcs1(),
+        () -> new MessageDigest("NONE"){
+            byte input0;
+            byte[] input1;
+            @Override
+            protected void engineUpdate(byte input) {
+                this.input0 = input;
+            }
+
+            @Override
+            protected void engineUpdate(byte[] input, int offset, int len) {
+                this.input1 = input;
+            }
+
+            @Override
+            protected byte[] engineDigest() {return input1;}
+
+            @Override
+            protected void engineReset() {}
+        }),
 
     ;
 
@@ -26,12 +47,19 @@ public enum ParsecRsaSignature implements ParsecSignatureInfo {
 
     private static AsymmetricSignature pkcs1WithHash(PsaAlgorithm.Algorithm.Hash hash) {
         return AsymmetricSignature.newBuilder()
-                .setRsaPkcs1V15Sign(AsymmetricSignature.RsaPkcs1v15Sign.newBuilder()
-                        .setHashAlg(AsymmetricSignature.SignHash.newBuilder()
-                                .setSpecific(hash)
-                                .build())
-                        .build())
-                .build();
+            .setRsaPkcs1V15Sign(AsymmetricSignature.RsaPkcs1v15Sign.newBuilder()
+                .setHashAlg(AsymmetricSignature.SignHash.newBuilder()
+                    .setSpecific(hash)
+                    .build())
+                .build())
+            .build();
+    }
+
+    private static AsymmetricSignature pkcs1() {
+        return AsymmetricSignature.newBuilder()
+            .setRsaPkcs1V15Sign(AsymmetricSignature.RsaPkcs1v15Sign.newBuilder()
+                .build())
+            .build();
     }
 
     @Override

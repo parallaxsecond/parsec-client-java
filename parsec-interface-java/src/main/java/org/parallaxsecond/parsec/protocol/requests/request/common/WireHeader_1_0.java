@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.ReadableByteChannel;
@@ -140,7 +141,7 @@ public class WireHeader_1_0 {
             .putShort(status) // 34
             .put(reserved1) // 35
             .put(reserved2); // 36
-    buf.flip();
+    ((Buffer)buf).flip();
 
     channel.write(buf);
   }
