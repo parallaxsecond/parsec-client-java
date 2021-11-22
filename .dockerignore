@@ -1,7 +1,15 @@
 build_demo.sh
+greengrass_demo/.gitignore
 secrets.env
 target
 .gitignore
 .git
 .cache
-parsec_docker_cache
+**/parsec_docker_cache
+**/target
+.idea
+*.iml
+.run
+.flattened-pom.xml
+*~
+.DS_Store
