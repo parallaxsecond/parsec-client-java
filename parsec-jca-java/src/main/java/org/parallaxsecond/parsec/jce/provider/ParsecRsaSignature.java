@@ -20,20 +20,21 @@ public enum ParsecRsaSignature implements ParsecSignatureInfo {
     NONE_WITH_RSA("NONEwithRSA",
         pkcs1(),
         () -> new MessageDigest("NONE"){
-            byte input0;
-            byte[] input1;
+            byte[] input;
             @Override
             protected void engineUpdate(byte input) {
-                this.input0 = input;
+              throw new UnsupportedOperationException("not implemented");
             }
 
             @Override
             protected void engineUpdate(byte[] input, int offset, int len) {
-                this.input1 = input;
+
+              this.input = input;
             }
 
             @Override
-            protected byte[] engineDigest() {return input1;}
+            protected byte[] engineDigest() {
+              return input;}
 
             @Override
             protected void engineReset() {}
