@@ -2,9 +2,24 @@
 set -e
 pushd $(dirname $0)
 
+
+function dirty_build_on_new_comits() {
+  for repo in \
+    awslabs/aws-crt-java \
+    aws/aws-iot-device-sdk-java-v2 \
+    revaultch/aws-greengrass-nucleus; do
+  curl -s https://api.github.com/repos/${repo}/commits/key-op-prototype
+  done | md5 > greengrass_demo/dirty_repo.txt
+  touch -t 190001010000 greengrass_demo/dirty_repo.txt
+  export DIRTY_TS=$(cat greengrass_demo/dirty_repo.txt)
+}
+
 function build_greengrass_patched() {
 pushd examples/greengrass/parsec-greengrass-run-config/docker/
-docker build . --tag parallaxsecond/greengrass_patched:latest --progress plain
+docker build . \
+       --build-arg BUILD_TS=${DIRTY_TS} \
+       --tag parallaxsecond/greengrass_patched:latest \
+       --progress plain
 popd
 }
 function copy_deps_from_greengrass_patched_to_local() {
@@ -22,15 +37,6 @@ function build_greengrass_with_provider() {
   docker build . -f greengrass_demo/Dockerfile --tag parallaxsecond/greengrass_demo:latest  --progress plain
 }
 
-function dirty_build_on_new_comits() {
-  for repo in \
-    awslabs/aws-crt-java \
-    aws/aws-iot-device-sdk-java-v2 \
-    revaultch/aws-greengrass-nucleus; do
-  curl -s https://api.github.com/repos/${repo}/commits/key-op-prototype
-  done | md5 > greengrass_demo/dirty_repo.txt
-  touch -t 190001010000 greengrass_demo/dirty_repo.txt
-}
 function parsec_run() {
     docker rm -f parsec_docker_run > /dev/null
     docker run -d --name parsec_docker_run \
