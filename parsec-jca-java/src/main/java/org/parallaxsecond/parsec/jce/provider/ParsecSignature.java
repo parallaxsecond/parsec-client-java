@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.parallaxsecond.parsec.client.exceptions.ClientException;
 import org.parallaxsecond.parsec.client.exceptions.ServiceException;
 import org.parallaxsecond.parsec.protocol.operations.NativeResult;
+import org.slf4j.Logger;
 import sun.security.jca.Providers;
 
 import java.security.*;
@@ -17,6 +18,7 @@ public final class ParsecSignature extends SignatureSpi {
   private String keyName;
   private MessageDigest messageDigest;
   private Signature verifyerDelegate;
+  private Logger logger;
 
   @Override
   protected void engineInitSign(PrivateKey privateKey) throws InvalidKeyException {
@@ -68,6 +70,8 @@ public final class ParsecSignature extends SignatureSpi {
           parsecClientAccessor
               .get()
               .psaSignHash(keyName, digest, signatureInfo.getParsecAlgorithm());
+      logger.info("Signed with algorithm {)", signatureInfo.getAlgorithmName());
+
       return r.getSignature();
     } catch (ServiceException | ClientException e) {
       throw new SignatureException("error signing value, signatureInfo: " + signatureInfo, e);
