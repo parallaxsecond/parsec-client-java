@@ -112,7 +112,7 @@ public final class ParsecSignature extends SignatureSpi {
           .psaVerifyHash(keyName, digest, signatureInfo.getParsecAlgorithm(), sigBytes);
       return true;
     } catch (ServiceException | ClientException e) {
-      throw new SignatureException("error signing value, signatureInfo: " + signatureInfo, e);
+      throw new SignatureException("error verifying value, signatureInfo: " + signatureInfo, e);
     }
   }
 
