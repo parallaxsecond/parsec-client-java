@@ -5,41 +5,23 @@ import lombok.RequiredArgsConstructor;
 import org.parallaxsecond.parsec.protobuf.psa_algorithm.PsaAlgorithm;
 import org.parallaxsecond.parsec.protobuf.psa_algorithm.PsaAlgorithm.Algorithm.AsymmetricSignature;
 
+import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 
 @RequiredArgsConstructor
 public enum ParsecRsaSignature implements ParsecSignatureInfo {
     // keep this in order of priority
-    SHA512_WITH_RSA(
-            "SHA512withRSA",
-            pkcs1WithHash(PsaAlgorithm.Algorithm.Hash.SHA_512),
-            () -> MessageDigest.getInstance("SHA-512")),
+    SHA512_WITH_RSA("SHA512withRSA",
+        pkcs1WithHash(PsaAlgorithm.Algorithm.Hash.SHA_512),
+        () -> MessageDigest.getInstance("SHA-512")),
+
     SHA256_WITH_RSA("SHA256withRSA",
         pkcs1WithHash(PsaAlgorithm.Algorithm.Hash.SHA_256),
         () -> MessageDigest.getInstance("SHA-256")),
+
     NONE_WITH_RSA("NONEwithRSA",
         pkcs1(),
-        () -> new MessageDigest("NONE"){
-            byte[] input;
-            @Override
-            protected void engineUpdate(byte input) {
-              throw new UnsupportedOperationException("not implemented");
-            }
-
-            @Override
-            protected void engineUpdate(byte[] input, int offset, int len) {
-
-              this.input = input;
-            }
-
-            @Override
-            protected byte[] engineDigest() {
-              return input;}
-
-            @Override
-            protected void engineReset() {}
-        }),
-
+        () -> MessageDigest.getInstance("None")),
     ;
 
     @Getter private final String algorithmName;

@@ -78,8 +78,7 @@ public interface NativeOperation {
     /** name must be unique per application. */
     String keyName;
     /** `attributes` specifies the parameters to be associated with the key. */
-    // FIXME
-    PsaKeyAttributes attributes;
+    PsaKeyAttributes.KeyAttributes attributes;
   }
   /** PsaImportKey operation */
   @Value
@@ -92,7 +91,6 @@ public interface NativeOperation {
      */
     String keyName;
     /** `attributes` specifies the attributes for the new key. */
-    // FIXME
     PsaKeyAttributes.KeyAttributes attributes;
     /**
      * `data` contains the bytes for the key, formatted in accordance with the requirements of the

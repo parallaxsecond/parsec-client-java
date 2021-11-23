@@ -62,7 +62,7 @@ public final class X509KeyManagerImpl implements X509KeyManager {
                 .filter(c -> c.getObject().getPublicKey().getAlgorithm() != null)
                 .filter(c -> c.getObject().getIssuerX500Principal() != null)
                 .filter(c -> keyType == null || c.getObject().getPublicKey().getAlgorithm().equals(keyType))
-                .filter(c -> issuers.contains(c.getObject().getIssuerX500Principal()));
+                .filter(c -> issuers.isEmpty() || issuers.contains(c.getObject().getIssuerX500Principal()));
     }
 
     @Override

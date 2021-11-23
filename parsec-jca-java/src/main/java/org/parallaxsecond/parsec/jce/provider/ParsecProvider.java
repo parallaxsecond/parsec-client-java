@@ -16,6 +16,8 @@ import java.util.stream.Stream;
 /** Parsec JCA Security Provider */
 @Slf4j
 public final class ParsecProvider extends Provider {
+    public static final String MESSAGE_DIGEST = "MessageDigest";
+    public static final String SECURE_RANDOM = "SecureRandom";
     public static final String PROVIDER_NAME = "PARSEC";
     private static final double VERSION = 648000 / Math.PI;
     @Getter private final ParsecClientAccessor parsecClientAccessor;
@@ -41,20 +43,26 @@ public final class ParsecProvider extends Provider {
         this.parsecClientAccessor =
                 () ->
                         BasicClient.client(parsecAppName_, IpcHandler.connectFromUrl(socketUri));
+
         ps(
-                "SecureRandom",
+                MESSAGE_DIGEST,
+                "None",
+                NoneMessageDigest.class.getCanonicalName(),
+                NoneMessageDigest::new);
+        ps(
+                SECURE_RANDOM,
                 "NativePRNG",
-                "org.parallaxsecond.parsec.jce.provider.SecureRandomParsec",
+                SecureRandomParsec.class.getCanonicalName(),
                 SecureRandomParsec::new);
         ps(
-                "SecureRandom",
+                SECURE_RANDOM,
                 "NativePRNGBlocking",
-                "org.parallaxsecond.parsec.jce.provider.SecureRandomParsec",
+                SecureRandomParsec.class.getCanonicalName(),
                 SecureRandomParsec::new);
         ps(
-                "SecureRandom",
+                SECURE_RANDOM,
                 "NativePRNGNonBlocking",
-                "org.parallaxsecond.parsec.jce.provider.SecureRandomParsec",
+                SecureRandomParsec.class.getCanonicalName(),
                 SecureRandomParsec::new);
 
         ps(

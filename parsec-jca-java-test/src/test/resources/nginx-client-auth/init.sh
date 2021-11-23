@@ -1,7 +1,7 @@
 #!/bin/bash -e
 # script runs on nginx after ports and hosts are known
 
-HOST_PORT="$1"
+HOST="$1"
 PASSWORD="$2"
 ROOT="${3:-.}"
 
@@ -73,7 +73,7 @@ subjectAltName = $ALTNAMES
 EOF
 
 cat >server.cnf << EOF
-FQDN = $HOST_PORT
+FQDN = $HOST
 ORGNAME = ParsecTest
 ALTNAMES = DNS:\$FQDN   # , DNS:bar.example.org , DNS:www.foo.example.org
 

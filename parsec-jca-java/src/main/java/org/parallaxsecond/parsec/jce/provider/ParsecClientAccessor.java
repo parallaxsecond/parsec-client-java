@@ -2,6 +2,7 @@ package org.parallaxsecond.parsec.jce.provider;
 
 import org.parallaxsecond.parsec.client.core.BasicClient;
 
+import java.io.Serializable;
 import java.util.function.Supplier;
 
 /**
@@ -14,4 +15,4 @@ import java.util.function.Supplier;
  *   <li>a new client per call
  * </ol>
  */
-public interface ParsecClientAccessor extends Supplier<BasicClient> {}
+public interface ParsecClientAccessor extends Supplier<BasicClient>, Serializable {}

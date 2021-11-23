@@ -8,6 +8,8 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
 import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.DefaultHostnameVerifier;
+import org.apache.hc.client5.http.ssl.HttpClientHostnameVerifier;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.core5.http.config.Registry;
@@ -93,47 +95,11 @@ class HttpClientTlsTest {
         client.psaImportKey(
                 "client",
                 Files.readAllBytes(clientKeyDer),
-                PsaKeyAttributes.KeyAttributes.newBuilder()
-                        .setKeyPolicy(
-                                PsaKeyAttributes.KeyPolicy.newBuilder()
+                ParsecCipherSuites.RSA_WITH_PKCS1.getKeyAttributes());
 
-                                        .setKeyAlgorithm(
-
-                                                PsaAlgorithm.Algorithm.newBuilder()
-
-                                                        .setAsymmetricSignature(
-                                                                PsaAlgorithm.Algorithm
-                                                                        .AsymmetricSignature
-                                                                        .newBuilder()
-                                                                                .setRsaPkcs1V15Sign(
-                                                                                        PsaAlgorithm.Algorithm.AsymmetricSignature.RsaPkcs1v15Sign.newBuilder()
-                                                                                                .setHashAlg(PsaAlgorithm.Algorithm.AsymmetricSignature.SignHash.newBuilder()
-                                                                                                        .setAny(PsaAlgorithm.Algorithm.AsymmetricSignature.SignHash.Any.newBuilder().build())
-                                                                                                        .build())
-                                                                                                .build()
-                                                                                )
-                                                                        .build())
-                                                        .build())
-                                        .setKeyUsageFlags(
-                                                PsaKeyAttributes.UsageFlags.newBuilder()
-                                                        .setDecrypt(true)
-                                                        .setEncrypt(true)
-                                                        .setSignMessage(true)
-                                                        .setVerifyMessage(true)
-                                                        .setVerifyHash(true)
-                                                        .setSignHash(true)
-                                                        .build())
-                                        .build())
-                        .setKeyType(
-                                PsaKeyAttributes.KeyType.newBuilder()
-                                        .setRsaKeyPair(
-                                                PsaKeyAttributes.KeyType.RsaKeyPair.newBuilder()
-                                                        .build())
-                                        .build())
-                        .build());
         URI socketUri = parsecContainer.getSocketUri();
         Provider parsec = ParsecProvider.builder().socketUri(socketUri).build();
-        Security.insertProviderAt(parsec, 1);
+        Security.insertProviderAt(parsec, 0);
 
         Path clientCertStoreFile = copyFromNginx("/keys/client_cert.jks");
         KeyStore clientCertStore = defaultKeystoreFromFile(clientCertStoreFile);
@@ -165,12 +131,11 @@ class HttpClientTlsTest {
     @SneakyThrows
     void setup() {
         Awaitility.await().until(nginxContainer::isRunning);
-        hostPort = format("%s:%s", nginxContainer.getHost(), nginxContainer.getMappedPort(443));
         ExecResult r =
                 nginxContainer.execInContainer(
                         "sh",
                         "-c",
-                        format("/init.sh %s %s /", hostPort, new String(keystorePassword)));
+                        format("/init.sh %s %s /", nginxContainer.getHost(), new String(keystorePassword)));
         assertEquals(0, r.getExitCode(), r.getStderr() + r.getStdout());
 
         Path serverTrustStore = copyFromNginx("/keys/server_chain.jks");
@@ -215,7 +180,7 @@ class HttpClientTlsTest {
         assertNotNull(sslContext.getProvider());
 
         SSLConnectionSocketFactory sslsf =
-                new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE);
+                new SSLConnectionSocketFactory(sslContext, new DefaultHostnameVerifier());
 
         Registry<ConnectionSocketFactory> socketFactoryRegistry =
                 RegistryBuilder.<ConnectionSocketFactory>create().register("https", sslsf).build();
@@ -223,7 +188,8 @@ class HttpClientTlsTest {
                 new BasicHttpClientConnectionManager(socketFactoryRegistry);
         CloseableHttpClient httpClient =
                 HttpClients.custom().setConnectionManager(connectionManager).build();
-        CloseableHttpResponse r = httpClient.execute(new HttpGet("https://" + hostPort));
+        CloseableHttpResponse r = httpClient.execute(
+                new HttpGet(format("https://%s:%s", nginxContainer.getHost(), nginxContainer.getMappedPort(443))));
         assertEquals(expectedResponseCode, r.getCode());
     }
 
