@@ -19,8 +19,8 @@ public enum ParsecRsaSignature implements ParsecSignatureInfo {
         pkcs1WithHash(PsaAlgorithm.Algorithm.Hash.SHA_256),
         () -> MessageDigest.getInstance("SHA-256")),
 
-    NONE_WITH_RSA("NONEwithRSA",
-        pkcs1(),
+    SHA256_PRECALCULATED_WITH_RSA("SHA256PrecalculatedWithRSA",
+        pkcs1WithHash(PsaAlgorithm.Algorithm.Hash.SHA_256),
         () -> MessageDigest.getInstance("None")),
     ;
 
