@@ -1,7 +1,15 @@
 #!/bin/bash
 set -e
 pushd $(dirname $0)
+md5_cmd=md5
 
+if ! test -x /sbin/md5; then
+  md5_cmd=md5sum
+fi
+GG_THING_NAME=$(id -un)-greengrass-parsec
+if test -e /etc/hostname; then
+  GG_THING_NAME=$(cat /etc/hostname)-greengrass-parsec
+fi
 
 function dirty_build_on_new_comits() {
   for repo in \
@@ -9,7 +17,7 @@ function dirty_build_on_new_comits() {
     aws/aws-iot-device-sdk-java-v2 \
     revaultch/aws-greengrass-nucleus; do
   curl -S https://api.github.com/repos/${repo}/commits/key-op-prototype
-  done | md5sum | cut -d" " -f1 > greengrass_demo/dirty_repo.txt
+  done | ${md5_cmd} | cut -d" " -f1 > greengrass_demo/dirty_repo.txt
   touch -t 190001010000 greengrass_demo/dirty_repo.txt
   export DIRTY_TS=$(cat greengrass_demo/dirty_repo.txt)
 }
@@ -63,7 +71,6 @@ function gg_run() {
 }
 function run_demo() {
   parsec_run
-  GG_THING_NAME=$(cat /etc/hostname)-greengrass-parsec
   source secrets.env
   gg_run greengrass_demo_provisioning provision
   gg_run greengrass_demo_run run -d
