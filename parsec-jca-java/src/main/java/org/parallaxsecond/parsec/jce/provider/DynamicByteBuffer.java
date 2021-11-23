@@ -20,6 +20,7 @@ public final class DynamicByteBuffer implements DynamicByteBufferWriter {
     }
     this.growFactor = growFactor;
     this.byteBuffer = ByteBuffer.allocate(initialCapacity);
+    this.buffer = byteBuffer;
   }
   public void setByteBuffer(ByteBuffer buffer) {
     this.byteBuffer = buffer;
