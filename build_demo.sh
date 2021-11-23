@@ -8,8 +8,8 @@ function dirty_build_on_new_comits() {
     awslabs/aws-crt-java \
     aws/aws-iot-device-sdk-java-v2 \
     revaultch/aws-greengrass-nucleus; do
-  curl -s https://api.github.com/repos/${repo}/commits/key-op-prototype
-  done | md5 > greengrass_demo/dirty_repo.txt
+  curl -S https://api.github.com/repos/${repo}/commits/key-op-prototype
+  done | md5sum | cut -d" " -f1 > greengrass_demo/dirty_repo.txt
   touch -t 190001010000 greengrass_demo/dirty_repo.txt
   export DIRTY_TS=$(cat greengrass_demo/dirty_repo.txt)
 }
@@ -38,15 +38,16 @@ function build_greengrass_with_provider() {
 }
 
 function parsec_run() {
-    docker rm -f parsec_docker_run > /dev/null
+    docker rm -f parsec_docker_run 2> /dev/null
     docker run -d --name parsec_docker_run \
-           -ti \
-           -v GG_PARSEC_STORE:/var/lib/parsec/mappings \
-           -v GG_PARSEC_SOCK:/run/parsec \
+          -ti \
+          -v GG_PARSEC_STORE:/var/lib/parsec/mappings \
+          -v GG_PARSEC_SOCK:/run/parsec \
            parallaxsecond/parsec:0.8.1
 }
 function gg_run() {
-  docker rm -f "${1}" >/dev/null
+  docker rm -f "${1}" 2> /dev/null
+  
   # shellcheck disable=SC2086
   docker run ${3} --name "${1}" \
          -e GG_THING_NAME="${GG_THING_NAME}" \
@@ -54,16 +55,19 @@ function gg_run() {
          -e AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}" \
          -e AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}" \
          -e AWS_REGION="${AWS_REGION}" \
+	 -e AWS_SESSION_TOKEN="${AWS_SESSION_TOKEN}" \
          -v GG_PARSEC_SOCK:/run/parsec \
          -v GG_HOME:/home/ggc_user \
+	 -p 1441:1441 -p 1442:1442 \
          parallaxsecond/greengrass_demo:latest "${2}"
 }
 function run_demo() {
   parsec_run
-  GG_THING_NAME=$(id -un)-gg-test
+  GG_THING_NAME=$(cat /etc/hostname)-greengrass-parsec
   source secrets.env
   gg_run greengrass_demo_provisioning provision
   gg_run greengrass_demo_run run -d
+  docker logs -f greengrass_demo_run
 }
 
 function build() {
