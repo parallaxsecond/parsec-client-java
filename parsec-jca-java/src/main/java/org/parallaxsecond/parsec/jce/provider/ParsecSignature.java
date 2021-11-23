@@ -18,7 +18,6 @@ public final class ParsecSignature extends SignatureSpi {
   private String keyName;
   private MessageDigest messageDigest;
   private Signature verifyerDelegate;
-  private Logger logger;
 
   @Override
   protected void engineInitSign(PrivateKey privateKey) throws InvalidKeyException {
@@ -70,7 +69,7 @@ public final class ParsecSignature extends SignatureSpi {
           parsecClientAccessor
               .get()
               .psaSignHash(keyName, digest, signatureInfo.getParsecAlgorithm());
-      logger.info("Signed with algorithm {)", signatureInfo.getAlgorithmName());
+      log.info("Signed with algorithm {)", signatureInfo.getAlgorithmName());
 
       return r.getSignature();
     } catch (ServiceException | ClientException e) {
