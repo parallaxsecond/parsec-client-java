@@ -4,13 +4,15 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Delegate;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
 public final class DynamicByteBuffer implements DynamicByteBufferWriter {
   @Getter
-  @Setter
-  @Delegate(excludes = DynamicByteBufferWriter.class)
+  @Delegate(excludes = {DynamicByteBufferWriter.class, Buffer.class})
   private ByteBuffer byteBuffer;
+  @Delegate(excludes = DynamicByteBufferWriter.class)
+  private Buffer buffer;
   @Getter private final float growFactor;
   public DynamicByteBuffer(int initialCapacity, float growFactor) {
     if (growFactor <= 1) {
@@ -18,5 +20,9 @@ public final class DynamicByteBuffer implements DynamicByteBufferWriter {
     }
     this.growFactor = growFactor;
     this.byteBuffer = ByteBuffer.allocate(initialCapacity);
+  }
+  public void setByteBuffer(ByteBuffer buffer) {
+    this.byteBuffer = buffer;
+    this.buffer = buffer;
   }
 }
