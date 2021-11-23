@@ -454,8 +454,9 @@ public class BasicClient {
    * Hash::Sha256.into(), }.into(), }, }; client.psa_generate_key("my_key", key_attrs); # Ok(())}
    * ```
    */
-  public void psaGenerateKey(String keyName, PsaKeyAttributes keyAttributes) {
+  public void psaGenerateKey(String keyName, PsaKeyAttributes.KeyAttributes keyAttributes) {
     ProviderId cryptoProvider = this.canProvideCrypto();
+
 
     NativeResult res =
         this.operationClient.processOperation(

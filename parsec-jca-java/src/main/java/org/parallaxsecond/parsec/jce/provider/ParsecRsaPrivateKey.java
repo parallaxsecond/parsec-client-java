@@ -1,5 +1,6 @@
 package org.parallaxsecond.parsec.jce.provider;
 
+import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
 
@@ -8,6 +9,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
 // FIXME verify if we can get rid off the RSAPrivateKey inheritance
+@Builder
 @Value
 public class ParsecRsaPrivateKey implements RSAPrivateKey {
     @NonNull
@@ -16,7 +18,7 @@ public class ParsecRsaPrivateKey implements RSAPrivateKey {
     String algorithm;
     @NonNull
     String format;
-    @NonNull
+    // FIXME should get rid of this
     RSAPublicKey rsaPublicKey;
 
     @Override
