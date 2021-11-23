@@ -55,25 +55,25 @@ function parsec_run() {
 }
 function gg_run() {
   docker rm -f "${1}" 2> /dev/null
-  
+
   # shellcheck disable=SC2086
-  docker run ${3} --name "${1}" \
+  docker run ${3} \
+         --name "${1}" \
          -e GG_THING_NAME="${GG_THING_NAME}" \
          -e GG_ADDITIONAL_CMD_ARGS="--trusted-plugin /provider.jar" \
          -e AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}" \
          -e AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}" \
          -e AWS_REGION="${AWS_REGION}" \
-	 -e AWS_SESSION_TOKEN="${AWS_SESSION_TOKEN}" \
+	       -e AWS_SESSION_TOKEN="${AWS_SESSION_TOKEN}" \
          -v GG_PARSEC_SOCK:/run/parsec \
          -v GG_HOME:/home/ggc_user \
-	 -p 1441:1441 -p 1442:1442 \
          parallaxsecond/greengrass_demo:latest "${2}"
 }
 function run_demo() {
   parsec_run
   source secrets.env
   gg_run greengrass_demo_provisioning provision
-  gg_run greengrass_demo_run run -d
+  gg_run greengrass_demo_run run "-d -p 1441:1441 -p 1442:1442"
   docker logs -f greengrass_demo_run
 }
 
