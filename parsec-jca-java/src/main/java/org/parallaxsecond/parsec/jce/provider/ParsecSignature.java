@@ -69,7 +69,7 @@ public final class ParsecSignature extends SignatureSpi {
           parsecClientAccessor
               .get()
               .psaSignHash(keyName, digest, signatureInfo.getParsecAlgorithm());
-      log.info("Signed with algorithm {)", signatureInfo.name());
+      log.info(String.format("Signed with algorithm {}", signatureInfo.getAlgorithmName()));
 
       return r.getSignature();
     } catch (ServiceException | ClientException e) {
