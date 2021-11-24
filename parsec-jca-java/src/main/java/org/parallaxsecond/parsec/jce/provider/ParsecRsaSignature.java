@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.parallaxsecond.parsec.protobuf.psa_algorithm.PsaAlgorithm;
 import org.parallaxsecond.parsec.protobuf.psa_algorithm.PsaAlgorithm.Algorithm.AsymmetricSignature;
 
-import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 
 @RequiredArgsConstructor
