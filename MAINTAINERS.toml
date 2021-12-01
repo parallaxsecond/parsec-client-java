@@ -1,0 +1,44 @@
+# parsec-client-java maintainers file
+#
+# This file lists the maintainers of the parallaxsecond/parsec-client-java
+# project.
+#
+# Its structure is inspired from the maintainers files in the Docker Github
+# repositories. Please see the MAINTAINERS file in docker/opensource for more
+# information.
+
+[maintainers]
+
+# Core maintainers of the project.
+
+    [maintainers.core]
+    people = [
+      "grealish",
+      "samspycher",
+      "ukeller",
+      "paulhowardarm",
+    ]
+
+[people]
+
+# A reference list of all people associated with the project.
+
+    [people.samspycher]
+    Name = "Sam Spycher"
+    Email = "sam@saydo.com"
+    GitHub = "samspycher"
+
+    [people.grealish]
+    Name = "Darragh Grealish"
+    Email = "darragh@56k.cloud"
+    GitHub = "grealish"
+
+    [people.ukeller]
+    Name = "Urs Keller"
+    Email = "urs.keller@dfsdm"
+    GitHub = "ukeller"
+
+    [people.paulhowardarm]
+    Name = "Paul Howard"
+    Email = "paul.howard@arm.com"
+    GitHub = "paulhowardarm"
