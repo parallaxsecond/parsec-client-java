@@ -1,26 +1,28 @@
 # Parsec Java Client
 
-To enabled Parsec support in the Java Ecosystem, this repository contains multiple implementaiton(s) of Java Client that consumes the API Providers by the Parsec Service. Using this library is possible in two ways, as a Basic Java Client and/or as a Native Java JCA Interface. 
+This repository contains a Java Client and a [JCA provider](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html) for Parsec. The client exposes the [PSA Crypto API](https://github.com/ARMmbed/mbed-crypto/blob/psa-crypto-api/docs/PSA_Cryptography_API_Specification.pdf) to Java Applications and the JCA Provider allows existing applications that employ JCA to switch to Parsec.
+
+*Note*: this client is at an early stage of development and not yet ready for production use. We welcome contributions!
 
 ## In this repository
 
-The following are the 
+The repository contains the following packages:
 
-- parsec-client-java : Basic Client
-- parsec-interface-java: wrapper 
-- parsec-jca-java: This is the native JCA (Java Cryptograpy Adapter..)
-- parsec-protobuf-java: This is submodule of the PArsec Protobuf where java classes are generated 
-- parsec-testcontainers: collection of Docker test containers to test the use of Java Client 
+- parsec-client-java : PSA Crypto API Client
+- parsec-jca-java: JCA Provider
+- parsec-interface-java: Private wrapper for protobuf classes and socket communication
+- parsec-protobuf-java: Java Protobuf classes (generated)
+- parsec-testcontainers: Collection of Docker test containers for development & testing 
 
 # How to use this library
-Here is explain how to use the Parsec Java-Client library in your application
+TODO
 
 # How to develop the Parsec Java Client
-If you'd like to get started in developing parsec further, we explain how to get started and the design behind the support for parsec in java
+TODO
 
 # Example Implementations
-There are a number of example implementations of both the basic java client and JCA client along with a demo (seperate repository) 
-Both the tests and workshop demo cover the basic functionality of Parsec that address the majority of use cases, the following
+There are a number of example implementations of both the basic java client and JCA provider along with a demo (separate repository) 
+Both the tests and workshop demo cover the basic functionality of the current implementation:
 
 - Parsec JCA Tests [**Link**](/parsec-jca-test)
 - Parsec Test Containers [**Link**](/parsec-testcontainers)
