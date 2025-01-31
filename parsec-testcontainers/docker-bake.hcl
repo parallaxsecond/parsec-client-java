@@ -1,6 +1,6 @@
 group "default" {
-  #targets = ["parsec", "parsec_0.7.0", "parsec_0.8.1"]
-  targets = ["parsec_0.8.1", "nginx-test"]
+  #targets = ["parsec", "parsec_0-7-0", "parsec_0-8-1", "parsec_1-4-1"]
+  targets = ["parsec_1-4-1", "nginx-test"]
 }
 target "generic" {
   context = "."
@@ -25,7 +25,17 @@ target "parsec" {
     "parallaxsecond/parsec:latest"
   ]
 }
-target "parsec_0.8.1" {
+target "parsec_1-4-1" {
+  inherits = ["parsec"]
+  args = {
+    PARSEC_BRANCH = "main"
+  }
+  tags = [
+    "parallaxsecond/parsec:1.4.1"
+  ]
+}
+
+target "parsec_0-8-1" {
   inherits = ["parsec"]
   args = {
     PARSEC_BRANCH = "0.8.1"
@@ -34,7 +44,7 @@ target "parsec_0.8.1" {
     "parallaxsecond/parsec:0.8.1"
   ]
 }
-target "parsec_0.7.0" {
+target "parsec_0-7-0" {
   inherits = ["parsec"]
   args = {
     PARSEC_BRANCH = "0.7.0"
