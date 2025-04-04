@@ -16,58 +16,57 @@ function dirty_build_on_new_comits() {
     awslabs/aws-crt-java \
     aws/aws-iot-device-sdk-java-v2 \
     revaultch/aws-greengrass-nucleus; do
-  curl -S https://api.github.com/repos/${repo}/commits/key-op-prototype
-  done | ${md5_cmd} | cut -d" " -f1 > greengrass_demo/dirty_repo.txt
+    curl -S https://api.github.com/repos/${repo}/commits/key-op-prototype
+  done | ${md5_cmd} | cut -d" " -f1 >greengrass_demo/dirty_repo.txt
   touch -t 190001010000 greengrass_demo/dirty_repo.txt
   export DIRTY_TS=$(cat greengrass_demo/dirty_repo.txt)
 }
 
 function build_greengrass_patched() {
-pushd examples/greengrass/parsec-greengrass-run-config/docker/
-docker build . \
-       --build-arg BUILD_TS=${DIRTY_TS} \
-       --tag parallaxsecond/greengrass_patched:latest \
-       --progress plain
-popd
+  pushd examples/greengrass/parsec-greengrass-run-config/docker/
+  docker build . \
+    --build-arg BUILD_TS=${DIRTY_TS} \
+    --tag parallaxsecond/greengrass_patched:latest \
+    --progress plain
+  popd
 }
 function copy_deps_from_greengrass_patched_to_local() {
   docker run -v ~/.m2/repository:/host_m2_repository parallaxsecond/greengrass_patched:latest \
-  /bin/bash -c "cp -r ~/.m2/repository/* /host_m2_repository"
+    /bin/bash -c "cp -r ~/.m2/repository/* /host_m2_repository"
 }
 
 function build_parsec_containers() {
-pushd ./parsec-testcontainers/
-./build.sh
-popd
+  pushd ./parsec-testcontainers/
+  ./build.sh
+  popd
 }
 
 function build_greengrass_with_provider() {
-  docker build . -f greengrass_demo/Dockerfile --tag parallaxsecond/greengrass_demo:latest  --progress plain
+  docker build . -f greengrass_demo/Dockerfile --tag parallaxsecond/greengrass_demo:latest --progress plain
 }
 
 function parsec_run() {
-    docker rm -f parsec_docker_run 2> /dev/null
-    docker run -d --name parsec_docker_run \
-          -ti \
-          -v GG_PARSEC_STORE:/var/lib/parsec/mappings \
-          -v GG_PARSEC_SOCK:/run/parsec \
-           parallaxsecond/parsec:0.8.1
+  docker rm -f parsec_docker_run 2>/dev/null
+  docker run -d --name parsec_docker_run \
+    -ti \
+    -v GG_PARSEC_STORE:/parsec/quickstart/mappings\  -v GG_PARSEC_SOCK:/run/parsec \
+    parallaxsecond/parsec:latest
 }
 function gg_run() {
-  docker rm -f "${1}" 2> /dev/null
+  docker rm -f "${1}" 2>/dev/null
 
   # shellcheck disable=SC2086
   docker run ${3} \
-         --name "${1}" \
-         -e GG_THING_NAME="${GG_THING_NAME}" \
-         -e GG_ADDITIONAL_CMD_ARGS="--trusted-plugin /provider.jar" \
-         -e AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}" \
-         -e AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}" \
-         -e AWS_REGION="${AWS_REGION}" \
-	       -e AWS_SESSION_TOKEN="${AWS_SESSION_TOKEN}" \
-         -v GG_PARSEC_SOCK:/run/parsec \
-         -v GG_HOME:/home/ggc_user \
-         parallaxsecond/greengrass_demo:latest "${2}"
+    --name "${1}" \
+    -e GG_THING_NAME="${GG_THING_NAME}" \
+    -e GG_ADDITIONAL_CMD_ARGS="--trusted-plugin /provider.jar" \
+    -e AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}" \
+    -e AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}" \
+    -e AWS_REGION="${AWS_REGION}" \
+    -e AWS_SESSION_TOKEN="${AWS_SESSION_TOKEN}" \
+    -v GG_PARSEC_SOCK:/run/parsec \
+    -v GG_HOME:/home/ggc_user \
+    parallaxsecond/greengrass_demo:latest "${2}"
 }
 function run_demo() {
   parsec_run
