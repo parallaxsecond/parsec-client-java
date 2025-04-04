@@ -1,22 +1,24 @@
 package org.parallaxsecond.parsec.client.core.ipc_handler;
 
-import org.parallaxsecond.parsec.client.jna.UnixSocketChannel;
-import lombok.Setter;
-
 import java.nio.channels.ByteChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Objects;
 
+import org.parallaxsecond.parsec.client.jna.UnixSocketChannel;
+
+import lombok.Setter;
+
 /** IPC handler for Unix domain sockets */
 public class UnixSocket implements IpcHandler {
   /** Default socket path used by the service. */
-  public static final String DEFAULT_SOCKET_PATH = "/run/parsec/parsec.sock";
+  public static final String DEFAULT_SOCKET_PATH = "/parsec/quickstart/parsec.sock";
   /** Path at which the socket can be found */
   private final Path path;
   /** Timeout for reads and writes on the streams */
-  @Setter private Duration timeout = DEFAULT_TIMEOUT;
+  @Setter
+  private Duration timeout = DEFAULT_TIMEOUT;
 
   public UnixSocket(String path) {
     this(path, DEFAULT_TIMEOUT);
