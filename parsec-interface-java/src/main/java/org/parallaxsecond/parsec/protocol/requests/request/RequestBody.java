@@ -1,8 +1,5 @@
 package org.parallaxsecond.parsec.protocol.requests.request;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -10,9 +7,13 @@ import java.nio.ByteOrder;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 @RequiredArgsConstructor
 public class RequestBody {
-  @Getter private final ByteBuffer buffer;
+  @Getter
+  private final ByteBuffer buffer;
 
   public RequestBody(byte[] buf) {
     this(ByteBuffer.wrap(buf));
@@ -22,7 +23,7 @@ public class RequestBody {
       throws IOException {
     ByteBuffer buf = ByteBuffer.allocate(len).order(ByteOrder.LITTLE_ENDIAN);
     channel.read(buf);
-    ((Buffer)buf).flip();
+    ((Buffer) buf).flip();
     return new RequestBody(buf);
   }
 
@@ -32,5 +33,10 @@ public class RequestBody {
 
   public int length() {
     return buffer.remaining();
+  }
+
+  @Override
+  public String toString() {
+    return "RequestBody current length=" + length();
   }
 }
