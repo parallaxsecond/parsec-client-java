@@ -9,7 +9,7 @@ mkdir -p "${ROOT}"/keys
 cd "${ROOT}"/keys
 
 mkdir -p "${ROOT}"/etc/nginx/conf.d
-cat >"${ROOT}"/etc/nginx/conf.d/ssl.conf << 'EOF'
+cat >"${ROOT}"/etc/nginx/conf.d/ssl.conf <<'EOF'
 server {
   listen 443 ssl;
   server_name example.com;
@@ -29,7 +29,7 @@ server {
 }
 EOF
 
-cat >ca.cnf << 'EOF'
+cat >ca.cnf <<'EOF'
 FQDN = ca_cert
 ORGNAME = ParsecTest
 ALTNAMES = DNS:$FQDN   # , DNS:bar.example.org , DNS:www.foo.example.org
@@ -49,7 +49,7 @@ CN = $FQDN
 subjectAltName = $ALTNAMES
 EOF
 
-cat >client.cnf << 'EOF'
+cat >client.cnf <<'EOF'
 FQDN = client_cert
 ORGNAME = ParsecTest
 ALTNAMES = DNS:$FQDN   # , DNS:bar.example.org , DNS:www.foo.example.org
@@ -72,7 +72,7 @@ CN = $FQDN
 subjectAltName = $ALTNAMES
 EOF
 
-cat >server.cnf << EOF
+cat >server.cnf <<EOF
 FQDN = $HOST
 ORGNAME = ParsecTest
 ALTNAMES = DNS:\$FQDN   # , DNS:bar.example.org , DNS:www.foo.example.org
@@ -109,31 +109,30 @@ openssl req -new -config client.cnf -key client.key -out client.csr
 echo "signing client csr"
 openssl x509 -req -days 10 -in client.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out client.crt
 
-cat client.crt ca.crt > client_chain.crt
-
+cat client.crt ca.crt >client_chain.crt
 
 # contains only certs
 openssl pkcs12 -export -nokeys -in client.crt \
-               -name client -CAfile cclient_chain.pem \
-               -passout "pass:${PASSWORD}" -out client.cert.p12
+  -name client -CAfile cclient_chain.pem \
+  -passout "pass:${PASSWORD}" -out client.cert.p12
 
 rm -f client_cert.jks
 keytool -importcert -file client_chain.crt -alias client \
-       -keystore client_cert.jks -storepass "${PASSWORD}" -noprompt
+  -keystore client_cert.jks -storepass "${PASSWORD}" -noprompt
 keytool -importcert -file ca.crt -alias ca \
-       -keystore client_cert.jks -storepass "${PASSWORD}" -noprompt
+  -keystore client_cert.jks -storepass "${PASSWORD}" -noprompt
 
 # contains cert, certchain and keys
 
 openssl pkcs12 -export -in client_chain.crt -inkey client.key \
-               -out client.p12 -name client \
-               -CAfile ca.crt -caname root -password "pass:${PASSWORD}"
+  -out client.p12 -name client \
+  -CAfile ca.crt -caname root -password "pass:${PASSWORD}"
 
 rm -f client.jks
 keytool -importkeystore \
-        -deststorepass "${PASSWORD}" -destkeypass "${PASSWORD}" -destkeystore client.jks \
-        -srckeystore client.p12 -srcstoretype PKCS12 -srcstorepass "${PASSWORD}" \
-        -alias client
+  -deststorepass "${PASSWORD}" -destkeypass "${PASSWORD}" -destkeystore client.jks \
+  -srckeystore client.p12 -srcstoretype PKCS12 -srcstorepass "${PASSWORD}" \
+  -alias client
 
 # Server
 echo "creating server key"
@@ -144,11 +143,11 @@ echo "signing server csr"
 openssl x509 -req -days 10 -in server.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out server.crt
 
 # Server Chain
-cat server.crt ca.crt > server_chain.crt
+cat server.crt ca.crt >server_chain.crt
 # writing java truststore
 rm -f server_chain.jks
 keytool -import -file server_chain.crt -alias server \
-       -keystore server_chain.jks -storepass "${PASSWORD}" -trustcacerts -noprompt
+  -keystore server_chain.jks -storepass "${PASSWORD}" -trustcacerts -noprompt
 
 # reload nginx
 nginx -s reload
