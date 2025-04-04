@@ -1,15 +1,18 @@
 package org.parallaxsecond.parsec.client.core;
 
+import java.io.IOException;
+import java.time.Duration;
+
 import org.parallaxsecond.parsec.client.Authentication;
 import org.parallaxsecond.parsec.client.core.ipc_handler.IpcHandler;
 import org.parallaxsecond.parsec.client.exceptions.ClientException;
-import org.parallaxsecond.parsec.protocol.requests.InterfaceException;
 import org.parallaxsecond.parsec.client.exceptions.InvalidServiceResponseTypeException;
 import org.parallaxsecond.parsec.client.exceptions.ServiceException;
 import org.parallaxsecond.parsec.protocol.operations.Convert;
 import org.parallaxsecond.parsec.protocol.operations.NativeOperation;
 import org.parallaxsecond.parsec.protocol.operations.NativeResult;
 import org.parallaxsecond.parsec.protocol.operations_protobuf.ProtobufConverter;
+import org.parallaxsecond.parsec.protocol.requests.InterfaceException;
 import org.parallaxsecond.parsec.protocol.requests.Opcode;
 import org.parallaxsecond.parsec.protocol.requests.ProviderId;
 import org.parallaxsecond.parsec.protocol.requests.ResponseStatus;
@@ -17,14 +20,14 @@ import org.parallaxsecond.parsec.protocol.requests.request.Request;
 import org.parallaxsecond.parsec.protocol.requests.request.RequestBody;
 import org.parallaxsecond.parsec.protocol.requests.request.RequestHeader;
 import org.parallaxsecond.parsec.protocol.requests.response.Response;
+
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
-
-import java.io.IOException;
-import java.time.Duration;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Builder
+@Slf4j
 public class OperationClient {
   /** Converter that manages request body conversions Defaults to a Protobuf converter */
   private final Convert contentConverter;
@@ -34,15 +37,13 @@ public class OperationClient {
   private final RequestClient requestClient;
 
   public static OperationClient withDefaults() {
-    return OperationClient.builder()
-        .contentConverter(new ProtobufConverter())
-        .acceptConverter(new ProtobufConverter())
-        .requestClient(RequestClient.withDefaults())
+    return OperationClient.builder().contentConverter(new ProtobufConverter())
+        .acceptConverter(new ProtobufConverter()).requestClient(RequestClient.withDefaults())
         .build();
   }
 
-  public NativeResult processOperation(
-      NativeOperation operation, ProviderId providerId, Authentication auth) {
+  public NativeResult processOperation(NativeOperation operation, ProviderId providerId,
+      Authentication auth) {
     Opcode reqOpCode = operation.getOpcode();
     Request request = operationToRequest(operation, providerId, auth);
     Response response = null;
@@ -54,8 +55,8 @@ public class OperationClient {
     return responseToResult(response, reqOpCode);
   }
 
-  private Request operationToRequest(
-      NativeOperation operation, ProviderId providerId, Authentication auth) {
+  private Request operationToRequest(NativeOperation operation, ProviderId providerId,
+      Authentication auth) {
 
     Opcode opcode = operation.getOpcode();
     final RequestBody body;
@@ -64,15 +65,10 @@ public class OperationClient {
     } catch (Exception e) {
       throw new InterfaceException(e);
     }
-    RequestHeader header =
-        RequestHeader.builder()
-            .provider(providerId)
-            .session(0) // no provisioning of sessions yet
-            .contentType(contentConverter.bodyType())
-            .acceptType(acceptConverter.bodyType())
-            .authType(auth.getAuthType())
-            .opcode(opcode)
-            .build();
+    // no provisioning of sessions yet
+    RequestHeader header = RequestHeader.builder().provider(providerId).session(0)
+        .contentType(contentConverter.bodyType()).acceptType(acceptConverter.bodyType())
+        .authType(auth.getAuthType()).opcode(opcode).build();
     return Request.builder().header(header).body(body).auth(auth.createRequestAuth()).build();
   }
 

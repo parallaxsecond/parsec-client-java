@@ -1,16 +1,17 @@
 package org.parallaxsecond.parsec.client.jna;
 
-import org.parallaxsecond.parsec.client.core.FileStat;
-import org.parallaxsecond.parsec.client.exceptions.InvalidSocketAddressException;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+
+import org.parallaxsecond.parsec.client.core.FileStat;
+import org.parallaxsecond.parsec.client.exceptions.InvalidSocketAddressException;
+
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class UnixSocketChannel implements ByteChannel {
@@ -37,7 +38,7 @@ public class UnixSocketChannel implements ByteChannel {
     while (read < toRead) {
       read += (int) UnixSocket.readSocket(this.socket, dst, toRead - read);
       log.debug("expected: {}, read: {}", toRead, read);
-      ((Buffer)dst).position(pos + read);
+      ((Buffer) dst).position(pos + read);
     }
     return toRead;
   }
@@ -49,7 +50,7 @@ public class UnixSocketChannel implements ByteChannel {
     int pos = src.position();
     while (written < toWrite) {
       written += (int) UnixSocket.writeSocket(socket, src, toWrite - written);
-      ((Buffer)src).position(pos + written);
+      ((Buffer) src).position(pos + written);
     }
     return written;
   }
