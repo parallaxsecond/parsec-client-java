@@ -1,72 +1,106 @@
-ARG REGISTRY
-FROM amazonlinux:2 as builder
+# Copyright 2023 Contributors to the Parsec project.
+# SPDX-License-Identifier: Apache-2.0
+# Liberally adapted from:
+# https://github.com/parallaxsecond/parsec/blob/5b2c4904d96808a5fb98a599f5304acef8b26dda/quickstart/quickstart.Dockerfile  
 
-RUN set -e -x; \
-    yum install -y git gcc shadow-utils cmake3 make gcc-c++ pkgconfig clang-devel;\
-    rm -rf /root/.cache && \
-    yum clean all && \
-    rm -rf /var/cache/yum && \
-    rpm --rebuilddb && \
-    ln -s /usr/bin/cmake3 /usr/bin/cmake
+# ---------------------------------------------
+# Docker Stage: Base builder used for both parsec service and tools
+FROM rust:latest AS base_builder
 
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+RUN apt update -y && \
+    apt install -y llvm-dev libclang-dev clang cmake jq 
 
-# Workaround for incorrect aarch64 entry in cargo build
-RUN ln -s /usr/bin/gcc /usr/bin/aarch64-linux-gnu-gcc
+## Track various build environment things we may want to use throughout
+WORKDIR /build-env
+RUN echo "$(uname | awk '{print tolower($0)}')" > /build-env/os
+RUN echo "$(arch)" > /build-env/arch
+RUN echo "$(rustc --version)" > /build-env/rustc-version
+RUN echo "$(cargo --version)" > /build-env/cargo-version
 
-ARG PARSEC_TOOL_VERSION=0.4.0
-RUN set -e -x; \
-    source $HOME/.cargo/env; \
-    git clone https://github.com/parallaxsecond/parsec-tool; \
-    cd parsec-tool; \
-    git checkout ${PARSEC_TOOL_VERSION}; \
-    cargo install --path .; \
-    cd ..; \
-    rm -rf parsec-tool
+# ---------------------------------------------
+# Docker Stage: Temporary stage to help dependency caching
+FROM base_builder AS parsec_service_scratch
 
-ARG PARSEC_BRANCH=0.8.1
+WORKDIR /
+## Checkout the latest release
+RUN git clone https://github.com/parallaxsecond/parsec;
+
+WORKDIR /parsec
+# Latest release 1.4.1 doesn't compile: https://github.com/parallaxsecond/parsec/issues/776 
+# TODO: add the following line before `cargo fetch` once the fix is released
+# git checkout $(git tag --sort=committerdate | grep -v rc | tail -1); \
+RUN cargo fetch
+
+# ---------------------------------------------
+# Docker Stage: Executes the build of the Parsec Service
+FROM parsec_service_scratch AS parsec_service_builder
+
+## Run the actual build
 ARG PARSEC_FEATURES="cryptoauthlib-provider,mbed-crypto-provider,unix-peer-credentials-authenticator,direct-authenticator"
-RUN set -e -x; \
-    source $HOME/.cargo/env; \
-    git clone https://github.com/parallaxsecond/parsec; \
-    cd parsec; \
-    git checkout ${PARSEC_BRANCH}; \
-    cargo install --features "${PARSEC_FEATURES}" --path .; \
-    cd ..; \
-    rm -rf parsec
+RUN git describe --exact-match --tags; \
+    echo 'Building Parsec with features:' && echo "${PARSEC_FEATURES}" && \
+    cargo build --release --features "${PARSEC_FEATURES}"; 
 
-ARG PARSEC_UID=4000
-ARG PARSEC_GID=4000
-RUN set -e -x; \
-    groupadd -g ${PARSEC_GID} parsec; \
-    useradd -u ${PARSEC_UID} -g ${PARSEC_GID} -d /home/parsec parsec; \
-    mkdir -p /var/lib/parsec /home/parsec /run/parsec /etc/parsec /usr/libexec/parsec; \
-    chmod 700 /var/lib/parsec /etc/parsec /usr/libexec/parsec; \
-    chmod 755 /run/parsec;
+# Save the current parsec version and dependencies as defined by cargo and the current git commit hash
+RUN echo "$(cargo metadata --format-version=1 --no-deps --offline | jq -r '.packages[0].version')" > /build-env/parsec-version
+RUN echo "$(cargo tree)" > /build-env/parsec-dependencies
+RUN echo "$(git rev-parse HEAD)" > /build-env/parsec-commit
 
-FROM amazonlinux:2 as run
-ENV RUST_LOG=info
-ARG PARSEC_UID=4000
-ARG PARSEC_GID=4000
+# ---------------------------------------------
+# Docker Stage: Executes the build of the Parsec Tool
+FROM base_builder AS parsec_tool_builder
 
-RUN yum install -y socat && \
-    rm -rf /root/.cache && \
-    yum clean all && \
-    rm -rf /var/cache/yum && \
-    rpm --rebuilddb
+RUN git clone https://github.com/parallaxsecond/parsec-tool /parsec-tool
+WORKDIR /parsec-tool
+RUN git checkout $(git tag --sort=committerdate | tail -1)
+RUN cargo build --release
 
-COPY --from=builder /etc/passwd /etc/passwd
-COPY --from=builder /etc/group /etc/group
-COPY --from=builder /root/.cargo/bin/parsec* /usr/bin/
+# Save the current parsec-tool version and dependencies as defined by cargo and the current git commit hash
+RUN echo "$(cargo metadata --format-version=1 --no-deps --offline | jq -r '.packages[0].version')" > /build-env/parsec-tool-version
+RUN echo "$(cargo tree)" > /build-env/parsec-tool-dependencies
+RUN echo "$(git rev-parse HEAD)" > /build-env/parsec-tool-commit
+
+# ---------------------------------------------
+# Docker Stage: Extracts build results from previous stages and adds in quickstart configs
+FROM base_builder AS layout
+
+## Add the built binaries into the image
+COPY --from=parsec_service_builder /parsec/target/release/parsec /parsec/bin/parsec
+COPY --from=parsec_tool_builder /parsec-tool/target/release/parsec-tool /parsec/bin/parsec-tool
+
+## Create and configure a starting directory for quickstart operations
+WORKDIR /parsec/quickstart
+COPY config.toml /parsec/quickstart/config.toml
+COPY --from=parsec_tool_builder /parsec-tool/tests/parsec-cli-tests.sh /parsec/quickstart/parsec-cli-tests.sh
+
+## Grab all the build-env values
+COPY --from=parsec_service_builder /build-env/* /build-env/
+COPY --from=parsec_tool_builder /build-env/* /build-env/
+
+## Generate the build details file
+COPY construct-build-details.sh /build-env/
+RUN chmod +x /build-env/construct-build-details.sh && /build-env/construct-build-details.sh > /parsec/quickstart/build.txt
+
+# ---------------------------------------------
+# Docker Stage: Constructs a valid Docker image with Parsec Quickstart
+FROM ubuntu:latest AS runnable_image
+
+COPY --from=layout /parsec /parsec
+
+ENV PATH=$PATH:/parsec/bin
+ENV PARSEC_SERVICE_ENDPOINT=unix:/parsec/quickstart/parsec.sock
+
+RUN apt update && apt install -y openssl socat
+
+
+RUN useradd -ms /bin/bash qs
+RUN chown -R qs:qs /parsec/quickstart 
+USER qs
+
+WORKDIR /parsec/quickstart
+
+RUN chmod a+rwx /parsec/quickstart/
+
 COPY config.toml /etc/parsec/
-COPY --from=builder --chown=${PARSEC_UID}:${PARSEC_GID} /usr/libexec/parsec /usr/libexec/parsec
-COPY --from=builder --chown=${PARSEC_UID}:${PARSEC_GID} /var/lib/parsec /var/lib/parsec
-COPY --from=builder --chown=${PARSEC_UID}:${PARSEC_GID} /home/parsec /home/parsec
-COPY --from=builder --chown=${PARSEC_UID}:${PARSEC_GID} /run/parsec /run/parsec
-COPY --from=builder --chown=${PARSEC_UID}:${PARSEC_GID} /etc/parsec /etc/parsec
 
-# FIXME volume mount problem
-# Volumes are mounted as root first
-#USER parsec:parsec
-WORKDIR "/home/parsec"
 CMD ["parsec", "-c", "/etc/parsec/config.toml"]
