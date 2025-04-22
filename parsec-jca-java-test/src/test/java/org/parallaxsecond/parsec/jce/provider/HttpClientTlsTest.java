@@ -13,9 +13,11 @@ import java.security.Security;
 import static java.util.Optional.ofNullable;
 import java.util.stream.Stream;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.KeyStoreBuilderParameters;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -117,6 +119,14 @@ class HttpClientTlsTest {
                 return new File(f).getAbsolutePath();
         }
 
+        // Allow all hostnames for testing purposes
+        HostnameVerifier allowAll = new HostnameVerifier() {
+                @Override
+                public boolean verify(String hostName, SSLSession session) {
+                        return true;
+                }
+        };
+
         @BeforeEach
         @SneakyThrows
         void setup() {
@@ -170,8 +180,8 @@ class HttpClientTlsTest {
 
                 assertNotNull(sslContext.getProvider());
 
-                SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext,
-                                new DefaultHostnameVerifier());
+                SSLConnectionSocketFactory sslsf =
+                                new SSLConnectionSocketFactory(sslContext, allowAll);
 
                 Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder
                                 .<ConnectionSocketFactory>create().register("https", sslsf).build();
