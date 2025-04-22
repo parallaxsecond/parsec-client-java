@@ -88,13 +88,16 @@ FROM ubuntu:latest AS runnable_image
 COPY --from=layout /parsec /parsec
 
 ENV PATH=$PATH:/parsec/bin
-ENV PARSEC_SERVICE_ENDPOINT=unix:/parsec/quickstart/parsec.sock
+ENV PARSEC_SERVICE_ENDPOINT=unix:/run/parsec/parsec.sock
 
 RUN apt update && apt install -y openssl socat
 
 
 RUN useradd -ms /bin/bash qs
 RUN chown -R qs:qs /parsec/quickstart 
+RUN mkdir -p /run/parsec
+RUN chown -R qs:qs /run/parsec
+RUN chmod -R 777 /run/parsec
 USER qs
 
 WORKDIR /parsec/quickstart

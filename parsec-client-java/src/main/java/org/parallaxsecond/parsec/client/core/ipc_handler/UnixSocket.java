@@ -13,7 +13,7 @@ import lombok.Setter;
 /** IPC handler for Unix domain sockets */
 public class UnixSocket implements IpcHandler {
   /** Default socket path used by the service. */
-  public static final String DEFAULT_SOCKET_PATH = "/parsec/quickstart/parsec.sock";
+  public static final String DEFAULT_SOCKET_PATH = "/run/parsec/parsec.sock";
   /** Path at which the socket can be found */
   private final Path path;
   /** Timeout for reads and writes on the streams */

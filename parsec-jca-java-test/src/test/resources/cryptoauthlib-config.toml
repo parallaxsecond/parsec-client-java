@@ -13,7 +13,7 @@ listener_type = "DomainSocket"
 # The timeout needs to be smaller than the test client timeout (five seconds) as it is testing
 # that the service does not hang for very big values of body or authentication length.
 timeout = 3000 # in milliseconds
-socket_path = "/parsec/quickstart/parsec.sock"
+socket_path = "/run/parsec/parsec.sock"
 
 [authenticator]
 auth_type = "Direct"

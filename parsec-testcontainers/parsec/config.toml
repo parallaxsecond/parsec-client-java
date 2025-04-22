@@ -7,7 +7,7 @@ allow_root = true
 [listener]
 listener_type = "DomainSocket"
 timeout = 200 # in milliseconds
-socket_path = "/parsec/quickstart/parsec.sock"
+socket_path = "/run/parsec/parsec.sock"
 
 [authenticator]
 # auth_type = "UnixPeerCredentials"
