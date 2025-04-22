@@ -11,6 +11,10 @@ jobs:
           submodules: true
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
+      - name: Install socat tool
+        run: |
+          sudo apt-get update
+          sudo apt-get install socat
       - name: Cache Docker layers
         uses: actions/cache@v4
         with:
