@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 import static java.util.Collections.singletonList;
-import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -26,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ParsecContainer extends GenericContainer<ParsecContainer> {
   private static final String IMAGE_NAME = "parallaxsecond/parsec";
   private static final String PARSEC_SOCKET_FILE = "parsec.sock";
-  private static final String PARSEC_RUN_DIR = "/parsec/quickstart/";
+  private static final String PARSEC_RUN_DIR = "/run/parsec/";
   private static final String PARSEC_SOCKET = PARSEC_RUN_DIR + PARSEC_SOCKET_FILE;
   private static final int PARSEC_TCP_PORT = 4444;
   private final int localPort = findFreePort();
@@ -68,13 +67,9 @@ public class ParsecContainer extends GenericContainer<ParsecContainer> {
   public static ParsecContainer withVersion(String version) {
     ParsecContainer parsecContainer =
         new ParsecContainer(DockerImageName.parse(IMAGE_NAME + ":" + version));
-
     parsecContainer.start();
-
     // Wait for container to be running
     Awaitility.await().until(parsecContainer::isRunning);
-
-
     return parsecContainer;
   }
 
@@ -95,16 +90,8 @@ public class ParsecContainer extends GenericContainer<ParsecContainer> {
 
   @Override
   public void start() {
-    if (isOsx()) {
-      useSocat();
-    } else {
-    }
+    useSocat();
     super.start();
-  }
-
-  private static boolean isOsx() {
-    String os = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
-    return ((os.contains("mac")) || (os.contains("darwin")));
   }
 
   @Override
@@ -136,7 +123,6 @@ public class ParsecContainer extends GenericContainer<ParsecContainer> {
     Awaitility.await().until(() -> {
       return Files.exists(this.parsecSockSocat);
     });
-
   }
 
   @SneakyThrows
