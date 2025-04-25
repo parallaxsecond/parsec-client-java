@@ -1,15 +1,16 @@
 package org.parallaxsecond.parsec.protocol.requests.request;
 
-import org.parallaxsecond.parsec.protocol.requests.InterfaceException;
-import org.parallaxsecond.parsec.protocol.requests.ResponseStatus;
-import org.parallaxsecond.parsec.protocol.requests.request.common.WireHeader_1_0;
-import lombok.Builder;
-import lombok.RequiredArgsConstructor;
-
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.text.MessageFormat;
+
+import org.parallaxsecond.parsec.protocol.requests.InterfaceException;
+import org.parallaxsecond.parsec.protocol.requests.ResponseStatus;
+import org.parallaxsecond.parsec.protocol.requests.request.common.WireHeader_1_0;
+
+import lombok.Builder;
+import lombok.RequiredArgsConstructor;
 
 /** Representation of the request wire format. */
 @Builder
@@ -33,11 +34,13 @@ public class Request {
   /**
    * Deserialise request from given stream.
    *
-   * <p>Request header is parsed from its raw form, ensuring that all fields are valid. The
+   * <p>
+   * Request header is parsed from its raw form, ensuring that all fields are valid. The
    * `body_len_limit` parameter allows the interface client to reject requests that are longer than
    * a predefined limit. The length limit is in bytes.
    *
-   * <p># Errors - if reading any of the subfields (header, body or auth) fails, the corresponding
+   * <p>
+   * # Errors - if reading any of the subfields (header, body or auth) fails, the corresponding
    * `ResponseStatus` will be returned. - if the request body size specified in the header is larger
    * than the limit passed as a parameter, `BodySizeExceedsLimit` will be returned.
    */
@@ -46,11 +49,8 @@ public class Request {
     WireHeader_1_0 rawHeader = WireHeader_1_0.readFromStream(channel);
     int bodyLen = rawHeader.getBodyLen();
     if (bodyLen > bodyLenLimit) {
-      throw new InterfaceException(
-          ResponseStatus.BodySizeExceedsLimit,
-          MessageFormat.format(
-              "Request body length ({0}) bigger than the limit given ({1}).",
-              bodyLen, bodyLenLimit));
+      throw new InterfaceException(ResponseStatus.BodySizeExceedsLimit, MessageFormat.format(
+          "Request body length ({0}) bigger than the limit given ({1}).", bodyLen, bodyLenLimit));
     }
     RequestBody body = RequestBody.readFromStream(channel, bodyLen);
     RequestAuth auth = RequestAuth.readFromStream(channel, rawHeader.getAuthLen());
@@ -61,19 +61,22 @@ public class Request {
   /**
    * Serialise request and write it to given stream.
    *
-   * <p>Request header is first converted to its raw format before serialization. # Errors - if an
-   * IO operation fails while writing any of the subfields of the request,
+   * <p>
+   * Request header is first converted to its raw format before serialization. # Errors - if an IO
+   * operation fails while writing any of the subfields of the request,
    * `ResponseStatus::ConnectionError` is returned. - if encoding any of the fields in the header
    * fails, `ResponseStatus::InvalidEncoding` is returned.
    */
   public void writeToStream(WritableByteChannel channel) throws IOException {
-    header
-        .toRaw()
-        .bodyLen(body.length())
-        .authLen((short) auth.getBuffer().length())
-        .build()
+    header.toRaw().bodyLen(body.length()).authLen((short) auth.getBuffer().length()).build()
         .writeToStream(channel);
     body.writeToStream(channel);
     auth.writeToStream(channel);
   }
+
+  @Override
+  public String toString() {
+    return "Request{" + "header=" + header + ", body=" + body + ", auth=" + auth + '}';
+  }
+
 }

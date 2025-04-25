@@ -6,11 +6,18 @@ public class NoneMessageDigest extends MessageDigest {
     public NoneMessageDigest(ParsecClientAccessor unused) {
         this();
     }
-    protected NoneMessageDigest() {
+
+    public NoneMessageDigest() {
         super("None");
+        init();
     }
 
-    private final DynamicByteBuffer buf = new DynamicByteBuffer(1024, 2);
+    private void init() {
+        this.buf = new DynamicByteBuffer(1024, 2);
+    }
+
+    private DynamicByteBuffer buf;
+
     @Override
     protected void engineUpdate(byte input) {
         buf.put(input);
@@ -23,12 +30,17 @@ public class NoneMessageDigest extends MessageDigest {
 
     @Override
     protected byte[] engineDigest() {
-        byte[] copy=new byte[buf.position()];
+        byte[] copy = new byte[buf.position()];
         buf.rewind();
         buf.get(copy);
+        buf.clear();
         return copy;
     }
 
     @Override
-    protected void engineReset() {}
+    protected void engineReset() {
+        if (buf != null) {
+            buf.clear();
+        }
+    }
 }

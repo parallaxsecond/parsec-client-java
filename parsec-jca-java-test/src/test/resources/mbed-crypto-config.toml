@@ -2,6 +2,7 @@
 # The CI already timestamps the logs
 log_timestamp = false
 log_error_details = true
+log_level = "debug" # Possible values: "debug", "info", "warn", "error", "trace"
 
 # The container runs the Parsec service as root, so make sure we disable root
 # checks.
@@ -20,7 +21,7 @@ auth_type = "Direct"
 [[key_manager]]
 name = "on-disk-manager"
 manager_type = "OnDisk"
-store_path = "/var/lib/parsec/mappings"
+store_path = "/parsec/quickstart/mappings\"
 
 [[provider]]
 provider_type = "MbedCrypto"

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -38,7 +37,7 @@
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
-                <version>1.13.0</version>
+                <version>4.1.1</version>
                 <executions>
                     <execution>
                         <id>execute</id>
@@ -63,7 +62,7 @@
                         <groupId>org.codehaus.groovy</groupId>
                         <artifactId>groovy</artifactId>
                         <!-- any version of Groovy \>= 1.5.0 should work here -->
-                        <version>3.0.7</version>
+                        <version>3.0.24</version>
                         <scope>runtime</scope>
                     </dependency>
                 </dependencies>

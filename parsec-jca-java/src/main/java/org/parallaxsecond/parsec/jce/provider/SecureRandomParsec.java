@@ -1,17 +1,20 @@
 package org.parallaxsecond.parsec.jce.provider;
 
-import lombok.RequiredArgsConstructor;
-
 import java.security.SecureRandomSpi;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @RequiredArgsConstructor
+@Slf4j
 public final class SecureRandomParsec extends SecureRandomSpi {
   private final ParsecClientAccessor parsecClientFactory;
 
   @Override
   protected void engineSetSeed(byte[] seed) {
     // TODO: verify if this is the intended behaviour
-    // throw new UnsupportedOperationException("Parsec does not accept seeding the random number generator.");
+    throw new UnsupportedOperationException(
+        "Parsec does not accept seeding the random number generator.");
   }
 
   @Override
@@ -22,7 +25,8 @@ public final class SecureRandomParsec extends SecureRandomSpi {
 
   @Override
   protected byte[] engineGenerateSeed(int numBytes) {
-    // TODO: Verify that we can simply use `psaGenerateRandom` here (The use case may be to generate seeds for other RNGs)
+    // TODO: Verify that we can simply use `psaGenerateRandom` here (The use case may be to generate
+    // seeds for other RNGs)
     byte[] seed = new byte[numBytes];
     engineNextBytes(seed);
     return seed;

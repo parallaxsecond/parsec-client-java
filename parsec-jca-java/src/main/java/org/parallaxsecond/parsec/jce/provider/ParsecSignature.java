@@ -1,14 +1,25 @@
 package org.parallaxsecond.parsec.jce.provider;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.security.InvalidKeyException;
+import java.security.InvalidParameterException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.Provider;
+import java.security.PublicKey;
+import java.security.Security;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.SignatureSpi;
+import java.util.Arrays;
+
 import org.parallaxsecond.parsec.client.exceptions.ClientException;
 import org.parallaxsecond.parsec.client.exceptions.ServiceException;
 import org.parallaxsecond.parsec.protocol.operations.NativeResult;
-import org.slf4j.Logger;
-import sun.security.jca.Providers;
 
-import java.security.*;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 
 @RequiredArgsConstructor
 @Slf4j
@@ -22,9 +33,8 @@ public final class ParsecSignature extends SignatureSpi {
   @Override
   protected void engineInitSign(PrivateKey privateKey) throws InvalidKeyException {
     if (!(privateKey instanceof ParsecRsaPrivateKey)) {
-      throw new InvalidKeyException(
-          String.format(
-              "Invalid key, expected a key of type %s.", ParsecRsaPrivateKey.class.getName()));
+      throw new InvalidKeyException(String.format("Invalid key, expected a key of type %s.",
+          ParsecRsaPrivateKey.class.getName()));
     }
     this.keyName = ((ParsecRsaPrivateKey) privateKey).getParsecName();
     this.messageDigest = makeMessageDigest();
@@ -35,8 +45,7 @@ public final class ParsecSignature extends SignatureSpi {
       return this.signatureInfo.getMessageDigestFactory().create();
     } catch (NoSuchAlgorithmException e) {
       String message =
-          String.format(
-              "Error creating associated message digest, key: %s, signatureInfo: %s",
+          String.format("Error creating associated message digest, key: %s, signatureInfo: %s",
               keyName, this.signatureInfo);
       log.debug(message);
       throw new InvalidKeyException(message, e);
@@ -65,10 +74,8 @@ public final class ParsecSignature extends SignatureSpi {
   protected byte[] engineSign() throws SignatureException {
     byte[] digest = this.messageDigest.digest();
     try {
-      NativeResult.PsaSignHashResult r =
-          parsecClientAccessor
-              .get()
-              .psaSignHash(keyName, digest, signatureInfo.getParsecAlgorithm());
+      NativeResult.PsaSignHashResult r = parsecClientAccessor.get().psaSignHash(keyName, digest,
+          signatureInfo.getParsecAlgorithm());
       log.info(String.format("Signed with algorithm %s", signatureInfo.getAlgorithmName()));
 
       return r.getSignature();
@@ -83,14 +90,20 @@ public final class ParsecSignature extends SignatureSpi {
       this.keyName = ((ParsecPublicKey) publicKey).getParsecName();
       this.messageDigest = makeMessageDigest();
     } else {
-      Provider.Service service =
-          Providers.getFullProviderList()
-              .getServices("Signature", signatureInfo.getAlgorithmName())
-              .stream()
-              .filter(s -> !ParsecProvider.PROVIDER_NAME.equals(s.getProvider().getName()))
-              .findFirst()
-              .orElseThrow(
-                  () -> new InvalidKeyException("couldn't find a provider to delegate to"));
+      // TODO: this uses internal APIs and is replaced for now.
+      // Make sure the replacing code below is correct!
+      // Provider.Service service = Providers.getFullProviderList()
+      // .getServices("Signature", signatureInfo.getAlgorithmName()).stream()
+      // .filter(s -> !ParsecProvider.PROVIDER_NAME.equals(s.getProvider().getName())).findFirst()
+      // .orElseThrow(() -> new InvalidKeyException("couldn't find a provider to delegate to"));
+
+      Provider[] providers = Security.getProviders();
+      Provider.Service service = Arrays.stream(providers).flatMap(p -> p.getServices().stream())
+          .filter(s -> "Signature".equals(s.getType())
+              && signatureInfo.getAlgorithmName().equals(s.getAlgorithm())
+              && !ParsecProvider.PROVIDER_NAME.equals(s.getProvider().getName()))
+          .findFirst()
+          .orElseThrow(() -> new InvalidKeyException("couldn't find a provider to delegate to"));
       try {
         this.verifyerDelegate =
             Signature.getInstance(service.getAlgorithm(), service.getProvider());
@@ -110,9 +123,8 @@ public final class ParsecSignature extends SignatureSpi {
     }
     byte[] digest = this.messageDigest.digest();
     try {
-      parsecClientAccessor
-          .get()
-          .psaVerifyHash(keyName, digest, signatureInfo.getParsecAlgorithm(), sigBytes);
+      parsecClientAccessor.get().psaVerifyHash(keyName, digest, signatureInfo.getParsecAlgorithm(),
+          sigBytes);
       return true;
     } catch (ServiceException | ClientException e) {
       throw new SignatureException("error verifying value, signatureInfo: " + signatureInfo, e);
