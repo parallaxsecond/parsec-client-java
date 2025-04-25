@@ -6,11 +6,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: true
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
       - name: Install socat tool
         run: |
           sudo apt-get update
@@ -23,7 +23,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-parsec_docker_cache-
       - name: Set up JDK 16
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           java-version: "16"
           distribution: "zulu"
@@ -33,7 +33,7 @@ jobs:
         # still needs work to get tests running on java 16
         run: ./mvnw --batch-mode clean verify -DskipTests=true
       - name: Set up JDK 8
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           java-version: "8"
           distribution: "zulu"
