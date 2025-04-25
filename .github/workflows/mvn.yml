@@ -5,6 +5,11 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        java: [8, 16] # Define matrix for Java versions
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,22 +27,22 @@ jobs:
           key: ${{ runner.os }}-parsec_docker_cache-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-parsec_docker_cache-
-      - name: Set up JDK 16
+
+      # Use the matrix variable to set up the correct JDK
+      - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v4
         with:
-          java-version: "16"
+          java-version: ${{ matrix.java }}
           distribution: "zulu"
           architecture: x64
           cache: maven
-      - name: Build with Maven
-        # still needs work to get tests running on java 16
-        run: ./mvnw --batch-mode clean verify -DskipTests=true
-      - name: Set up JDK 8
-        uses: actions/setup-java@v4
-        with:
-          java-version: "8"
-          distribution: "zulu"
-          architecture: x64
-          cache: maven
-      - name: Build with Maven
+
+      # Run tests only for Java 8
+      - name: Maven build with Java 8 - includes tests
+        if: matrix.java == '8'
         run: ./mvnw --batch-mode clean verify
+
+      # Skip tests for Java 16
+      - name: Maven build with Java 16 - skips tests
+        if: matrix.java == '16'
+        run: ./mvnw --batch-mode clean verify -DskipTests=true # still needs work to get tests running on java 16
