@@ -1,0 +1,38 @@
+name: Publish Package to GitHub Packages
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # Needed to publish packages
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true # Ensure submodules are checked out if needed
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: "8"
+          distribution: "zulu"
+          cache: maven
+
+      - name: Configure Maven Settings for GitHub Packages
+        uses: actions/setup-java@v4
+        with:
+          java-version: "8" # Repeat setup to ensure settings are configured
+          distribution: "zulu"
+          server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+          settings-path: ${{ github.workspace }} # location for the settings.xml file
+
+      - name: Publish package
+        run: mvn --batch-mode deploy -DskipTests=true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Provided by Actions, used for authentication
