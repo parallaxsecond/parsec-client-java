@@ -7,6 +7,7 @@ on:
 
 jobs:
   publish:
+    name: Publish to GitHub Packages
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -18,20 +19,25 @@ jobs:
         with:
           submodules: true # Ensure submodules are checked out if needed
 
-      - name: Set up JDK 8
+      - name: Set up JDK 8 and Configure Maven Settings
         uses: actions/setup-java@v4
         with:
           java-version: "8"
           distribution: "zulu"
           cache: maven
+          server-id: github # Id of the publication repository field in the pom.xml
+          settings-path: ${{ github.workspace }} # path for settings.xml with generated authentication info
 
-      - name: Configure Maven Settings for GitHub Packages
-        uses: actions/setup-java@v4
-        with:
-          java-version: "8" # Repeat setup to ensure settings are configured
-          distribution: "zulu"
-          server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
-          settings-path: ${{ github.workspace }} # location for the settings.xml file
+      - name: Verify Project Version is not a SNAPSHOT (on release event only)
+        if: github.event_name == 'release' # Only run this check for actual releases
+        run: |
+          PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "Checking project version: $PROJECT_VERSION for release trigger."
+          if [[ "$PROJECT_VERSION" == *"-SNAPSHOT"* ]]; then
+            echo "Error: Attempting to deploy a SNAPSHOT version ($PROJECT_VERSION) on a release event. Aborting."
+            exit 1
+          fi
+          echo "Project version $PROJECT_VERSION is a valid release version. Proceeding..."
 
       - name: Publish package
         run: mvn --batch-mode deploy -DskipTests=true
