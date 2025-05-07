@@ -4,6 +4,7 @@ on: [push]
 
 jobs:
   build:
+    name: Java ${{ matrix.java }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
