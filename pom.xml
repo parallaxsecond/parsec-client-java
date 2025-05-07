@@ -6,6 +6,13 @@
     <groupId>org.parallaxsecond</groupId>
     <artifactId>parsec-java</artifactId>
     <version>1.0.0-SNAPSHOT</version>
+    <distributionManagement>
+        <repository>
+            <id>github</id>            <!-- MUST match the server-id in the workflow -->
+            <name>GitHub Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/parallaxsecond/parsec-client-java</url>            <!-- Replace OWNER/REPOSITORY -->
+        </repository>
+    </distributionManagement>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <logback.version>1.3.15</logback.version>
