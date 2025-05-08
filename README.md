@@ -81,13 +81,12 @@ act --container-architecture linux/amd64 --env TESTCONTAINERS_HOST_OVERRIDE=`ipc
 
 # Example Implementations
 
-There are a number of example implementations of both the basic java client and JCA provider along with a demo (separate repository)
-Both the tests and workshop demo cover the basic functionality of the current implementation:
+There are a number of example implementations of both the basic java client and JCA provider as well as a demo (separate repository). The Greengrass Parsec Provider uses Parsec for client certificate rotation:
 
 - Parsec JCA Tests [**Link**](/parsec-jca-java-test/src/test/java/org/parallaxsecond/parsec/jce/provider/)
 - Parsec Client Tests [**Link**](/parsec-client-java/src/test/java/org/parallaxsecond/parsec/client/core/)
-- AWS Greengrass Parsec Provider [**Link**](https://github.com/awslabs/aws-greengrass-labs-parsec-provider)
 - Parsec Workshop Demos (External Repository) [**Link**](https://github.com/56kcloud/parsec-workshop)
+- AWS Greengrass Parsec Provider [**Link**](https://github.com/awslabs/aws-greengrass-labs-parsec-provider)
 
 ## License
 
