@@ -62,9 +62,18 @@ Check out this repo's submodules:
 git submodule update --init --recursive
 ```
 
-You can use `act` to run the github action locally. On OSX, you need to set the container architecture, and for testcontainers to work, you may need to set the env var `TESTCONTAINERS_HOST_OVERRIDE`.
+Develop with Maven in the usual way, but use the `./mvnw` wrapper.
 
-Example CLI input:
+Examples:
+
+- Full build: `./mvnw clean verify`
+- Run all tests: `./mvnw clean test`
+- Run single test: `./mvnw test -pl parsec-jca-java-test -Dtest=org.parallaxsecond.parsec.jce.provider.SecureRandomParsecTest`
+  Note: if you have container changes, clean out docker images and prefix your test run with `./mvnw install -pl parsec-testcontainers -am -Ddocker.nocache=true -Dtestcontainers.reuse.enable=false`
+
+You can also use `act` to run the github action locally. On OSX, you need to set the container architecture, and for testcontainers to work, you may need to set the env var `TESTCONTAINERS_HOST_OVERRIDE`.
+
+Example:
 
 ```sh
 act --container-architecture linux/amd64 --env TESTCONTAINERS_HOST_OVERRIDE=`ipconfig getifaddr en0`
@@ -75,8 +84,9 @@ act --container-architecture linux/amd64 --env TESTCONTAINERS_HOST_OVERRIDE=`ipc
 There are a number of example implementations of both the basic java client and JCA provider along with a demo (separate repository)
 Both the tests and workshop demo cover the basic functionality of the current implementation:
 
-- Parsec JCA Tests [**Link**](/parsec-jca-test)
-- Parsec Test Containers [**Link**](/parsec-testcontainers)
+- Parsec JCA Tests [**Link**](/parsec-jca-java-test/src/test/java/org/parallaxsecond/parsec/jce/provider/)
+- Parsec Client Tests [**Link**](/parsec-client-java/src/test/java/org/parallaxsecond/parsec/client/core/)
+- AWS Greengrass Parsec Provider [**Link**](https://github.com/awslabs/aws-greengrass-labs-parsec-provider)
 - Parsec Workshop Demos (External Repository) [**Link**](https://github.com/56kcloud/parsec-workshop)
 
 ## License
