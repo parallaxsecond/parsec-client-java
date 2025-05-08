@@ -1,6 +1,9 @@
 name: MVN Build
 
-on: { push: { tags-ignore: ["**"] } }
+on:
+  push:
+    tags-ignore:
+      - "**"
 
 jobs:
   build:
