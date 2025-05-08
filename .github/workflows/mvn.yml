@@ -1,9 +1,7 @@
 name: MVN Build
 
-on:
-  push:
-    tags-ignore:
-      - "**"
+# The release script pushes tags and commits to the repository. Without tags-ignore, this would cause two builds to run.
+on: { push: { branches: ["**"], tags-ignore: ["**"] } }
 
 jobs:
   build:
