@@ -5,7 +5,7 @@
     <packaging>pom</packaging>
     <groupId>org.parallaxsecond</groupId>
     <artifactId>parsec-java</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1-SNAPSHOT</version>
     <description>Parent POM and Bill of Materials (BOM) for the Parsec Java libraries. Import this POM in your project's dependencyManagement section to ensure compatible versions of all Parsec Java modules.</description>
     <distributionManagement>
         <repository>
@@ -24,6 +24,8 @@
         <!-- Since compiler plugin version 3.13.0 you can use the release property also on JDK 8. 
              The compiler plugin will convert it to source and target automatically. -->
         <maven.compiler.release>8</maven.compiler.release>
+        <source-plugin.version>3.3.1</source-plugin.version>
+        <javadoc-plugin.version>3.11.2</javadoc-plugin.version>
     </properties>
     <dependencyManagement>
         <dependencies>
