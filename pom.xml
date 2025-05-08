@@ -27,6 +27,26 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.parallaxsecond</groupId>
+                <artifactId>parsec-client-java</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.parallaxsecond</groupId>
+                <artifactId>parsec-jca-java</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.parallaxsecond</groupId>
+                <artifactId>parsec-interface-java</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.parallaxsecond</groupId>
+                <artifactId>parsec-protobuf-java</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
