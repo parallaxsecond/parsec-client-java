@@ -16,7 +16,43 @@ The repository contains the following packages:
 
 # How to use this library
 
-TODO
+To use the Parsec JCA provider in your Maven project, you need to:
+
+1.  **Configure GitHub Packages Repository:**
+    Add the following repository configuration to your project's `pom.xml`. This allows Maven to find and download Parsec Java Client artifacts from GitHub Packages.
+
+    ```xml
+    <project>
+        ...
+        <repositories>
+            <repository>
+                <id>github-parallaxsecond</id>
+                <name>GitHub Parallax Second Apache Maven Packages</name>
+                <url>https://maven.pkg.github.com/parallaxsecond/parsec-client-java</url>
+            </repository>
+        </repositories>
+        ...
+    </project>
+    ```
+
+2.  **Add the Dependency:**
+    Add the `parsec-jca-java` artifact as a dependency in your `pom.xml`:
+
+    ```xml
+    <dependencies>
+        ...
+        <dependency>
+            <groupId>org.parallaxsecond</groupId>
+            <artifactId>parsec-jca-java</artifactId>
+            <version>0.1.0</version> <!-- Replace with the desired version -->
+        </dependency>
+        ...
+    </dependencies>
+    ```
+
+    This will also bring in the necessary transitive dependencies: `parsec-client-java`, `parsec-interface-java`, and `parsec-protobuf-java`. For other JVM build systems, please take the necessary coordinates (`groupId`, `artifactId`, `version`) and adapt to your dependency management syntax. You can find the latest available version on the [project's GitHub Packages page](https://github.com/parallaxsecond/parsec-client-java/packages).
+
+    If you don't want to use the JCA, you can employ this library in a more parsec-idiomatic way by depending directly on `parsec-client-java`. _Note:_ this is not a recommendation either way.
 
 # How to develop the Parsec Java Client
 
