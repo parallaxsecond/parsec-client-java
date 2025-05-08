@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.parallaxsecond</groupId>
         <artifactId>parsec-java</artifactId>
-        <version>0.1.2-SNAPSHOT</version>
+        <version>0.1.2</version>
     </parent>
     <artifactId>parsec-client-java</artifactId>
     <description>Core Java client for interacting with a Parsec service. Implements the PSA Certified Crypto API, enabling applications to perform cryptographic operations via Parsec.</description>
