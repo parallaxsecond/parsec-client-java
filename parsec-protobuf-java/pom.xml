@@ -9,6 +9,7 @@
         <version>0.1.1-SNAPSHOT</version>
     </parent>
     <artifactId>parsec-protobuf-java</artifactId>
+    <description>Contains the generated Java classes from the Protocol Buffer (protobuf) definitions used for Parsec operations. These classes define the data structures for requests and responses when communicating with the Parsec service.</description>
 
     <properties>
         <protoc.version>3.18.0</protoc.version>

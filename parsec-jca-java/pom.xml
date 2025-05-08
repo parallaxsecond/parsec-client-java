@@ -9,6 +9,7 @@
         <version>0.1.1-SNAPSHOT</version>
     </parent>
     <artifactId>parsec-jca-java</artifactId>
+    <description>Java Cryptography Architecture (JCA) provider for Parsec. Allows existing Java applications using standard JCA interfaces (e.g., KeyStore, Signature, Cipher) to leverage Parsec for cryptographic operations with minimal code changes.</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>

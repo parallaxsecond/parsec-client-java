@@ -9,6 +9,7 @@
         <version>0.1.1-SNAPSHOT</version>
     </parent>
     <artifactId>parsec-interface-java</artifactId>
+    <description>Internal component of the Parsec Java client, responsible for managing communication with the Parsec service and handling Protocol Buffer (protobuf) message serialization/deserialization. Not typically intended for direct use by end-user applications.</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
