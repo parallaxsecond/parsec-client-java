@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.parallaxsecond</groupId>
         <artifactId>parsec-java</artifactId>
-        <version>0.1.1-SNAPSHOT</version>
+        <version>0.1.1</version>
     </parent>
     <artifactId>parsec-interface-java</artifactId>
     <description>Internal component of the Parsec Java client, responsible for managing communication with the Parsec service and handling Protocol Buffer (protobuf) message serialization/deserialization. Not typically intended for direct use by end-user applications.</description>
