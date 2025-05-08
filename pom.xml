@@ -5,7 +5,7 @@
     <packaging>pom</packaging>
     <groupId>org.parallaxsecond</groupId>
     <artifactId>parsec-java</artifactId>
-    <version>0.1.2-SNAPSHOT</version>
+    <version>0.1.1-SNAPSHOT</version>
     <name>Parsec Java Client</name>
     <description>Parent POM and Bill of Materials (BOM) for the Parsec Java libraries. Import this POM in your project's dependencyManagement section to ensure compatible versions of all Parsec Java modules.</description>
     <url>https://github.com/parallaxsecond/parsec-client-java</url>
