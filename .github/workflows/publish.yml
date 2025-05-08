@@ -28,6 +28,13 @@ jobs:
           server-id: github # Id of the publication repository field in the pom.xml
           settings-path: ${{ github.workspace }} # path for settings.xml with generated authentication info
 
+      - name: Display generated Maven settings.xml for debugging
+        run: |
+          echo "Maven settings.xml:"
+          cat ${{ github.workspace }}/settings.xml || echo "settings.xml not found or empty."
+          echo "env:" 
+          env
+
       - name: Verify Project Version is not a SNAPSHOT (on release event only)
         if: github.event_name == 'release' # Only run this check for actual releases
         run: |
