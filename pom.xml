@@ -198,7 +198,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <flattenMode>clean</flattenMode>
+                    <flattenMode>ossrh</flattenMode>
                 </configuration>
             </plugin>
             <plugin>
